@@ -1,0 +1,22 @@
+{
+    "type": "module",
+    "name": "outil",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "dev": "vite",
+        "start": "http-server ./ -p 8080",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "devDependencies": {
+        "http-server": "^14.1.1",
+        "vite": "^6.3.5"
+    },
+    "dependencies": {
+        "inputmask": "^5.0.9"
+    }
+}

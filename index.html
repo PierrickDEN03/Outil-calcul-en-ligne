@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="./style/index.css" />
+        <title>Outil de calcul en ligne</title>
+    </head>
+    <body>
+        <h1>Outil de calcul en ligne</h1>
+        <div class="container">
+            <div class="components">
+                <form>
+                    <div class="format-container">
+                        <select name="format" class="format">
+                            <option value="A6">A6</option>
+                            <option value="A5">A5</option>
+                            <option value="A4">A4</option>
+                            <option value="custom">Personnalisé</option>
+                        </select>
+                        <input type="text" name="custom_format" class="custom_format" placeholder="00 x 00" />
+                    </div>
+                    <input class="number" type="number" name="qte" min="1" />
+                    <select name="type_papier" class="select_type_papier">
+                        <option value="null">Choisissez un type de papier</option>
+                    </select>
+                    <select name="cote_impression" class="select_recto_verso">
+                        <option value="recto">Recto uniquement</option>
+                        <option value="recto-verso">Recto - Verso</option>
+                    </select>
+                </form>
+                <span class="total_cout"></span>
+            </div>
+        </div>
+        <script type="module" src="./index.js"></script>
+    </body>
+</html>
