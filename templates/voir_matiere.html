@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Visualisation des Matières</title>
+        <link rel="stylesheet" href="../style/voir_element.css" />
+    </head>
+    <body>
+        <h1>Visualisation des Matières</h1>
+        <p>
+            <a href="../app/app.php?action=backoffice"
+                ><img
+                    src="../img/back-button.png"
+                    alt="Icône surface"
+                    style="width: 45px; height: 45px; vertical-align: middle; margin-right: 8px"
+                />
+                Retour au Backoffice</a
+            >
+        </p>
+        <div class="container">
+            <!-- Tableau principal des matières -->
+            <section class="table-section">
+                <h2>Matières disponibles</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Nom</th>
+                            <th>Type Matière</th>
+                            <th>Laize</th>
+                            <th>Prix m²</th>
+                            <th>Code</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table_matiere"></tbody>
+                    <!-- Ligne ajout nouvelle impression -->
+                    <tfoot>
+                        <tr>
+                            <td>—</td>
+                            <td><input type="text" id="newNom" placeholder="Nom" /></td>
+                            <td><input type="text" id="newType" placeholder="Type Matière" /></td>
+                            <td><input type="number" id="newLaize" placeholder="Laize" step="1" min="0" /></td>
+                            <td><input type="number" id="newMcarre" placeholder="Prix au m²" step="0.1" min="0" /></td>
+                            <td><input type="text" id="newCode" placeholder="Code Matière (optionnel)" /></td>
+                            <td><button class="btnAdd">Ajouter</button></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </section>
+
+            <div style="display: flex; justify-content: space-between; gap: 50px">
+                <!-- Section pour modifier le frais fixe -->
+                <section class="form-section">
+                    <h2>Frais fixe</h2>
+                    <form class="form_champ">
+                        <label for="fraisFixe">Montant (€) :</label>
+                        <input type="number" class="fraisFixe" name="fraisFixe" value="0" step="0.01" min="0" />
+                        <button type="submit" class="submit_frais">Modifier</button>
+                    </form>
+                </section>
+                <!-- Section pour modifier le prix de la découpe -->
+                <section class="form-section">
+                    <h2>Prix à la découpe</h2>
+                    <form class="form_champ">
+                        <label for="prix_decoupe">Montant (en €/m²) :</label>
+                        <input type="number" class="prix_decoupe" name="prix_decoupe" value="0" step="0.01" min="0" />
+                        <button type="submit" class="submit_decoupe">Modifier</button>
+                    </form>
+                </section>
+            </div>
+
+            <!-- Deuxième tableau pour d'autres données -->
+            <section class="table-section">
+                <h2>Paliers dégressifs</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Min</th>
+                            <th>Max</th>
+                            <th>Coefficient multiplicateur</th>
+                            <th>Actions</th>
+                            <!-- Ajoute ici les colonnes nécessaires -->
+                        </tr>
+                    </thead>
+                    <tbody class="table_degressif"></tbody>
+                    <!-- Ligne ajout nouveau palier -->
+                    <tfoot>
+                        <tr>
+                            <td><input type="number" id="newMin" placeholder="Min" min="0" /></td>
+                            <td><input type="number" id="newMax" placeholder="Max" min="0" /></td>
+                            <td><input type="number" id="newCoeff" placeholder="Coefficient" step="0.01" min="0" /></td>
+                            <td><button class="btnAddPalier">Ajouter</button></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </section>
+        </div>
+
+        <script type="module" src="../src/voir_matiere.js"></script>
+    </body>
+</html>

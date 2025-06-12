@@ -1,0 +1,305 @@
+/* Reset de base */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Corps de la page */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f2f2f2;
+    color: #333;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+/* Titres */
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #222;
+}
+
+h2 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+a {
+    display: block;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #555;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Conteneur principal */
+.container {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 100px;
+    justify-content: center;
+}
+
+/* Sections de tableau */
+.table-section {
+    flex: 1 1 500px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+/* Tableaux */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+thead th {
+    background-color: #e0e0e0;
+    color: #222;
+    padding: 10px;
+    text-align: left;
+}
+
+tbody td,
+tfoot td {
+    padding: 8px;
+    border-bottom: 1px solid #ccc;
+}
+
+/* Inputs */
+input[type='text'],
+input[type='number'],
+input[type='tel'],
+input[type='mail'],
+select {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+/* Boutons */
+button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    background-color: #565760;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+button:hover {
+    background-color: #666;
+}
+
+.btnAdd,
+.btnAddPalier {
+    background-color: blue;
+}
+
+.btnAdd:hover,
+.btnAddPalier:hover {
+    background-color: darkblue;
+}
+
+.form_champ {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-section {
+    width: 100%;
+}
+
+.container-details {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: center;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    width: 120px;
+    font-weight: bold;
+}
+
+.form-group input {
+    flex: 1;
+    padding: 5px;
+    margin-right: 10px;
+}
+
+.form-group button {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.form-group-inline {
+    display: flex;
+    gap: 30px;
+}
+
+/* Popups */
+.popup-container {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.popup {
+    z-index: 999;
+}
+
+.popUp.hidden {
+    display: none;
+}
+
+.popup-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 450px;
+    max-width: 90%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.popup-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 450px;
+    max-width: 90%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.popup-content h2 {
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 10px;
+}
+
+.popup-content .form-group {
+    margin-bottom: 15px;
+}
+
+.popup-content .form-group label {
+    min-width: 100px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.popup-content .form-group input {
+    width: 100%;
+    margin: 0;
+}
+
+/* Styles pour la popup */
+.popup-ajout-entreprise-client .popup-content {
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.popup-ajout-entreprise-client h3 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 5px;
+}
+
+.popup-ajout-entreprise-client .section-group {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.popup-ajout-entreprise-client .section-group h4 {
+    color: #555;
+    margin-bottom: 10px;
+    font-size: 1em;
+    font-weight: 600;
+}
+
+.popup-ajout-entreprise-client .section-separator {
+    border: none;
+    border-top: 2px solid #dee2e6;
+    margin: 25px 0;
+}
+
+.popup-ajout-entreprise-client .entreprise-section,
+.popup-ajout-entreprise-client .client-section {
+    margin-bottom: 20px;
+}
+
+.popup-ajout-entreprise-client .form-group {
+    margin-bottom: 12px;
+}
+
+.popup-ajout-entreprise-client .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #333;
+}
+
+.popup-ajout-entreprise-client .form-group input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background-color: white;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.popup-ajout-entreprise-client .form-group input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.hidden {
+    display: none;
+}
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        gap: 20px;
+    }
+}

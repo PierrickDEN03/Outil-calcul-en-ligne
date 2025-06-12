@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Visualisation des Impressions</title>
+        <link rel="stylesheet" href="../style/voir_element.css" />
+    </head>
+    <body>
+        <h1>Visualisation des Impressions</h1>
+        <p>
+            <a href="../app/app.php?action=backoffice"
+                ><img
+                    src="../img/back-button.png"
+                    alt="Icône surface"
+                    style="width: 45px; height: 45px; vertical-align: middle; margin-right: 8px"
+                />
+                Retour au Backoffice</a
+            >
+        </p>
+        <div class="container">
+            <!-- Tableau principal des matières -->
+            <section class="table-section">
+                <h2>Impressions disponibles</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Nom</th>
+                            <th>Grammage (en g)</th>
+                            <th>Prix Recto (en €)</th>
+                            <th>Prix Recto/Verso (en €)</th>
+                            <th>Code Matière</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table_matiere"></tbody>
+                    <!-- Ligne ajout nouvelle impression -->
+                    <tfoot>
+                        <tr>
+                            <td>—</td>
+                            <td><input type="text" id="newNom" placeholder="Nom" /></td>
+                            <td><input type="number" id="newGrammage" placeholder="Grammage" min="0" /></td>
+                            <td><input type="number" id="newRecto" placeholder="Prix Recto" step="0.01" min="0" /></td>
+                            <td><input type="number" id="newRectoVerso" placeholder="Prix Recto/Verso" step="0.01" min="0" /></td>
+                            <td><input type="text" id="newCode" placeholder="Code Impression (optionnel)" /></td>
+                            <td><button class="btnAdd">Ajouter</button></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </section>
+
+            <!-- Deuxième tableau pour d'autres données -->
+            <section class="table-section">
+                <h2>Paliers dégressifs</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Min</th>
+                            <th>Max</th>
+                            <th>Coefficient multiplicateur</th>
+                            <th>Actions</th>
+                            <!-- Ajoute ici les colonnes nécessaires -->
+                        </tr>
+                    </thead>
+                    <tbody class="table_degressif"></tbody>
+                    <!-- Ligne ajout nouveau palier -->
+                    <tfoot>
+                        <tr>
+                            <td><input type="number" id="newMin" placeholder="Min" min="0" /></td>
+                            <td><input type="number" id="newMax" placeholder="Max" min="0" /></td>
+                            <td><input type="number" id="newCoeff" placeholder="Coefficient" step="0.01" min="0" /></td>
+                            <td><button class="btnAddPalier">Ajouter</button></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </section>
+        </div>
+
+        <script type="module" src="../src/voir_impression.js"></script>
+    </body>
+</html>

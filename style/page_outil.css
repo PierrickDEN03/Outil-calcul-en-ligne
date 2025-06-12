@@ -1,0 +1,271 @@
+/* ====== Base ====== */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+h1,
+h2,
+p {
+    text-align: center;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.components {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-between;
+}
+
+/* ====== Sections principales ====== */
+.matiere-container,
+.format-container {
+    flex: 1 1 48%;
+    min-width: 300px;
+    padding: 15px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ====== Ligne d’entrée (input + label) ====== */
+.form-row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.form-row label {
+    min-width: 160px;
+    font-weight: 500;
+}
+
+.form-row input[type='checkbox'] {
+    width: auto;
+}
+
+.form-row input,
+.form-row select {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* ====== Champ nom devis ====== */
+.nom_devis {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+
+.nom_devis:disabled {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* ====== Boutons ====== */
+input[type='button'],
+input[type='submit'],
+button {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-top: 10px;
+}
+
+/* Bouton principal */
+input[type='button'],
+input[type='submit'] {
+    background-color: #007bff;
+    color: white;
+}
+
+input[type='button']:hover,
+input[type='submit']:hover {
+    background-color: #0056b3;
+}
+
+/* Boutons gris */
+.btnValiderDevis,
+.button-voir-impressions,
+.button-voir-matiere {
+    background-color: #6c757d;
+    color: white;
+    margin-top: 10px;
+}
+
+.btnValiderDevis:hover,
+.button-voir-impressions:hover,
+.button-voir-matiere:hover {
+    background-color: #5a6268;
+}
+
+.btnValiderDevis:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btnValiderDevis {
+    width: 100%;
+}
+
+/* ====== Coût total ====== */
+.total_cout {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #007b50;
+}
+
+/* ====== Ligne spéciale : nom du devis ====== */
+.form-row.nom-devis-row {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.nom-devis-row label {
+    flex: 1 1 100%;
+}
+
+.nom-devis-row .nom_devis {
+    flex: 1 1 auto;
+    min-width: 200px;
+    max-width: 100%;
+}
+
+.nom-devis-row .btnValiderDevis {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    margin-top: 0;
+}
+
+/* Mise en ligne des deux boutons dans la même .form-row */
+.form-row > .btnValiderDevis,
+.form-row > .button-voir-matiere,
+.button-voir-impressions {
+    width: 48%;
+    margin-top: 10px;
+    margin-right: 4%;
+    display: inline-block;
+    box-sizing: border-box;
+}
+
+/* Retirer la marge droite du dernier bouton pour éviter décalage */
+.form-row > .button-voir-matiere,
+.button-voir-impressions {
+    margin-right: 0;
+}
+
+/* Uniformiser Choices avec les styles de .form-row select */
+.choices {
+    flex: 1;
+    min-width: 0;
+    font-size: 14px;
+    box-sizing: border-box;
+    border-radius: 4px;
+}
+
+/* Le conteneur qui imite le select visible */
+.choices__inner {
+    padding: 8px 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    box-sizing: border-box;
+}
+
+/* La dropdown list */
+.choices__list--dropdown {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Chaque élément sélectionnable */
+.choices__item--selectable {
+    padding: 8px 10px;
+    border-radius: 0;
+    font-size: 14px;
+}
+
+/* Pour matcher la désactivation d’un select */
+.choices.is-disabled .choices__inner {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+.hiddenClient {
+    display: none;
+}
+
+/* ====================================================== Responsive ================================================================ */
+@media (max-width: 768px) {
+    .matiere-container,
+    .format-container {
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+
+    .components {
+        flex-direction: column;
+    }
+
+    .form-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .form-row label {
+        min-width: unset;
+    }
+
+    .form-row input,
+    .form-row select {
+        width: 100%;
+    }
+
+    .nom-devis-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .nom-devis-row .btnValiderDevis {
+        width: 100%;
+    }
+
+    .form-row > .btnValiderDevis,
+    .form-row > .button-voir-matiere {
+        width: 100%;
+        margin-right: 0;
+        margin-top: 10px;
+        display: block;
+    }
+}

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Outil de calcul en ligne</title>
+        <link rel="stylesheet" href="../style/page_outil.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+        <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    </head>
+    <body>
+        <h1>Outil de calcul en ligne</h1>
+        <p>
+            <a href="../"
+                ><img
+                    src="../img/back-button.png"
+                    alt="Icône surface"
+                    style="width: 45px; height: 45px; vertical-align: middle; margin-right: 8px"
+                />Retour au menu</a
+            >
+        </p>
+        <div class="container">
+            <div class="components">
+                <!-- ********************************** HTML Pour Matières ************************************* -->
+                <div class="format-container">
+                    <h2>Calcul matière</h2>
+                    <div class="form-row">
+                        <label for="input-largeur">Saisir une largeur (cm)</label>
+                        <input type="number" class="input-largeur" min="1" />
+                    </div>
+                    <div class="form-row">
+                        <label for="input-longueur">Saisir une longueur (cm)</label>
+                        <input type="number" class="input-longueur" min="1" />
+                    </div>
+                    <div class="form-row">
+                        <label for="input-qte">Saisir une quantité</label>
+                        <input type="number" class="input-qte" min="1" />
+                    </div>
+                    <div class="form-row">
+                        <label for="select-matiere">Choisir une matière</label>
+                        <select class="select-matiere">
+                            <option value="null">------</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="input-espace">Espace entre les poses (mm)</label>
+                        <input type="number" class="input-espace" min="0" value="0" />
+                    </div>
+                    <div class="form-row">
+                        <label for="check-decoupe">Découpe à la forme (<span class="prix_decoupe_span"></span>€/m²)</label>
+                        <input type="checkbox" class="check-decoupe" name="check-decoupe" value="false" />
+                    </div>
+                    <div class="form-row">
+                        <label for="frais_fixe">Frais de lancement : </label>
+                        <span class="fraix_fixe"></span>
+                    </div>
+                    <div class="form-row">
+                        <input type="button" class="button-calcul-matieres" value="Faire le calcul" />
+                    </div>
+                    <div class="form-row">
+                        <label for="total_cout">Cout total (Frais fixe inclus): </label>
+                        <span class="total_cout_matiere"></span>
+                    </div>
+                    <div class="form-row nom-devis-row">
+                        <label for="nom_devis">Nom du devis (optionnel)</label>
+                        <input type="text" class="nom_devis" placeholder="Nom du devis" />
+                    </div>
+                    <!-- Inputs pour les entreprises complétés en JavaScript -->
+                    <div class="entreprise_select">
+                        <div class="form-row">
+                            <label for="selectEntreprise">Entreprise (optionnel)</label>
+                            <select name="selectEntreprise" class="selectEntreprise"></select>
+                            <button onclick="window.open('../app/app.php?action=voir_entreprise', '_blank')">+</button>
+                        </div>
+                        <div class="form-row hiddenClient">
+                            <label for="selectClient">Client</label>
+                            <select name="selectClient" class="selectClient"></select>
+                            <button class="add_client">+</button>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <button type="button" class="btnValiderDevis">Enregistrer le devis</button>
+                        <!-- Bouton Voir -->
+                        <button type="button" class="button-voir-matiere" onclick="window.open('../app/app.php?action=voir_matiere')">
+                            Voir ou créer matière
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="module" src="../src/matieres.js"></script>
+    </body>
+</html>

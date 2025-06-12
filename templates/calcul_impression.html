@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Outil de calcul en ligne</title>
+        <link rel="stylesheet" href="../style/page_outil.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+        <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    </head>
+    <body>
+        <h1>Outil de calcul en ligne</h1>
+        <p>
+            <a href="../">
+                <img
+                    src="../img/back-button.png"
+                    alt="Icône surface"
+                    style="width: 45px; height: 45px; vertical-align: middle; margin-right: 8px"
+                />
+                Retour au menu
+            </a>
+        </p>
+        <div class="container">
+            <div class="components">
+                <div class="format-container">
+                    <h2>Calcul Feuilles</h2>
+                    <div class="form-row">
+                        <label for="format">Choisir un format</label>
+                        <select name="format" class="format">
+                            <option value="null">------</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="number">Saisir une quantité</label>
+                        <input class="number" type="number" name="qte" min="1" />
+                    </div>
+                    <div class="form-row">
+                        <label for="type-papier">Choisir un type de papier</label>
+                        <select name="type_papier" class="select_type_papier">
+                            <option value="null">------</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="cote_impression">Choix de l'impression</label>
+                        <select name="cote_impression" class="select_recto_verso">
+                            <option value="recto">Recto uniquement</option>
+                            <option value="recto-verso">Recto - Verso</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <input type="button" class="button-calcul-impressions" value="Faire le calcul" />
+                    </div>
+                    <div class="form-row">
+                        <label for="total_cout">Cout total : </label>
+                        <span class="total_cout_impressions"></span>
+                    </div>
+                    <div class="form-row nom-devis-row">
+                        <label for="nom_devis">Nom du devis (optionnel)</label>
+                        <input type="text" class="nom_devis" placeholder="Nom du devis" />
+                    </div>
+                    <!-- Inputs pour les entreprises complétés en JavaScript -->
+                    <div class="entreprise_select">
+                        <div class="form-row">
+                            <label for="selectEntreprise">Entreprise (optionnel)</label>
+                            <select name="selectEntreprise" class="selectEntreprise"></select>
+                            <button onclick="window.open('../app/app.php?action=voir_entreprise', '_blank')">+</button>
+                        </div>
+                        <div class="form-row hiddenClient">
+                            <label for="selectClient">Client</label>
+                            <select name="selectClient" class="selectClient"></select>
+                            <button class="add_client">+</button>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <button type="button" class="btnValiderDevis">Enregistrer le devis</button>
+                        <button
+                            type="button"
+                            class="button-voir-impressions"
+                            onclick="window.open('../app/app.php?action=voir_impression')"
+                        >
+                            Voir les données
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script type="module" src="../src/gestion_entreprise.js"></script>
+        <script type="module" src="../src/impressions.js"></script>
+    </body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="../style/accueil.css" />
+        <title>Backoffice</title>
+    </head>
+    <body>
+        <div class="menu-container">
+            <h1>Backoffice</h1>
+            <a href="../index.html"
+                ><img
+                    src="../img/home.png"
+                    alt="Icône surface"
+                    style="width: 45px; height: 45px; vertical-align: middle; margin-right: 8px"
+                />
+                ← Retour au menu</a
+            >
+            <div class="button-group">
+                <button onclick="window.location.href='./app.php?action=voir_matiere';">
+                    <img
+                        src="../img/fabric.png"
+                        alt="Icône laize"
+                        style="width: 45px; height: 45px; vertical-align: middle; margin-right: 8px"
+                    />
+                    Tarif matière m²
+                </button>
+                <button onclick="window.location.href='./app.php?action=voir_impression';">
+                    <img
+                        src="../img/paper.png"
+                        alt="Icône papier"
+                        style="width: 45px; height: 45px; vertical-align: middle; margin-right: 8px"
+                    />
+                    Tarif impressions feuilles
+                </button>
+                <button onclick="window.location.href='./app.php?action=voir_entreprise';">
+                    <img
+                        src="../img/clients.png"
+                        alt="Icône clients"
+                        style="width: 45px; height: 45px; vertical-align: middle; margin-right: 8px"
+                    />
+                    Nos Clients
+                </button>
+                <button onclick="window.location.href='./app.php?action=voir_enregistrement';">
+                    <img
+                        src="../img/diskette.png"
+                        alt="Icône diskette"
+                        style="width: 45px; height: 45px; vertical-align: middle; margin-right: 8px"
+                    />
+                    Liste des devis
+                </button>
+            </div>
+        </div>
+    </body>
+</html>

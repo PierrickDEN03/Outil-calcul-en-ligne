@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Visualisation des Enregistrements</title>
+        <link rel="stylesheet" href="../style/voir_element.css" />
+    </head>
+    <body>
+        <h1>Visualisation des Enregistrements</h1>
+        <p>
+            <a href="../app/app.php?action=backoffice">
+                <img
+                    src="../img/back-button.png"
+                    alt="Icône surface"
+                    style="width: 45px; height: 45px; vertical-align: middle; margin-right: 8px"
+                />Retour au Backoffice</a
+            >
+        </p>
+
+        <div class="container">
+            <!-- Tableau principal des enregistrements -->
+            <section class="table-section">
+                <h2>Historique des enregistrements</h2>
+                <!-- Barre de recherche -->
+                <div class="search-bar" style="margin-bottom: 16px">
+                    <input type="text" class="searchInput" placeholder="Rechercher un enregistrement..." />
+                    <button class="searchBtn">Rechercher</button>
+                    <button class="delSearch">Annuler la recherche</button>
+                </div>
+
+                <div class="hidden">
+                    Les données se trouvent à l'adresse suivante : http://devis.horspiste-communication.fr/api/datas.php
+                </div>
+                <!-- Champ déroulant pour trier -->
+                <label for="select_trie">Trier en fonction</label>
+                <select name="select_trie" class="select_trie">
+                    <option value="null">--------</option>
+                    <option value="nom">Nom de devis</option>
+                    <option value="type">Type d'enregistrement</option>
+                    <option value="date">Date</option>
+                    <option value="prix">Prix</option>
+                    <option value="quantite">Quantité</option>
+                </select>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nom du devis</th>
+                            <th>Entreprise</th>
+                            <th>Contact</th>
+                            <th>Date</th>
+                            <th>Type Format</th>
+                            <th>Format</th>
+                            <th>Type Impression</th>
+                            <th>Matière</th>
+                            <th>Quantité</th>
+                            <th>Prix (€)</th>
+                            <th>Longueur (cm)</th>
+                            <th>Largeur (cm)</th>
+                            <th>Découpe</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table_enregistrements">
+                        <!-- Les données seront insérées ici dynamiquement -->
+                    </tbody>
+                </table>
+            </section>
+        </div>
+
+        <script type="module" src="../src/voir_datas.js"></script>
+    </body>
+</html>

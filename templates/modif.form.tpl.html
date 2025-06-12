@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Modifier mon profil</title>
+        <link rel="stylesheet" href="../style/connexion_form.css" />
+    </head>
+    <body>
+        <h1>Modifier mon profil</h1>
+        Cliquez ici pour revenir sur l'outil : <a href="app.php">retour à l'outil</a>
+
+        <div id="error-message" class="erreur" style="display: none">
+            <p></p>
+        </div>
+
+        <div class="formulaire">
+            <p>Veuillez renseigner les champs suivants pour modifier votre profil.</p>
+
+            <form id="modif-form" action="[onshow.cible]" method="POST">
+                <fieldset>
+                    <legend>Formulaire de modification de profil</legend>
+                    <input type="hidden" name="action" value="form_modif" /><br />
+
+                    <div class="form-row">
+                        <label for="pseudo">Pseudo</label>
+                        <input type="text" name="pseudo" id="pseudo" value="[onshow.pseudo]" />
+                    </div>
+
+                    <div class="form-row">
+                        <label for="password">Nouveau mot de passe</label>
+                        <input type="password" name="password" id="password" />
+                    </div>
+
+                    <div class="form-row">
+                        <label for="confirm-password">Confirmation mot de passe</label>
+                        <input type="password" name="confirm-password" id="confirm-password" />
+                    </div>
+
+                    <div class="btn-div">
+                        <input type="submit" value="Modifier" />
+                        <input type="reset" value="Réinitialiser" />
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+
+        <script>
+            document.getElementById('modif-form').addEventListener('submit', function (event) {
+                const pseudo = document.getElementById('pseudo').value.trim()
+                const password = document.getElementById('password').value.trim()
+                const confirmPassword = document.getElementById('confirm-password').value.trim()
+                const errorDiv = document.getElementById('error-message')
+                const errorText = errorDiv.querySelector('p')
+
+                // Réinitialisation de l'affichage
+                errorDiv.style.display = 'none'
+                errorText.textContent = ''
+
+                if (!pseudo || !password || !confirmPassword) {
+                    errorText.textContent = 'Tous les champs doivent être complétés.'
+                    errorDiv.style.display = 'flex'
+                    event.preventDefault()
+                    return
+                }
+
+                if (password !== confirmPassword) {
+                    errorText.textContent = 'Les mots de passe ne correspondent pas.'
+                    errorDiv.style.display = 'flex'
+                    event.preventDefault()
+                }
+            })
+        </script>
+    </body>
+</html>

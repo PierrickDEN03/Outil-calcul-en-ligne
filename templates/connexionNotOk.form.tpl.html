@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Se connecter</title>
+        <link rel="stylesheet" href="../style/connexion_form.css" />
+    </head>
+    <body>
+        <h1>Se connecter</h1>
+        <p style="text-align: center; line-height: 2rem">
+            Connectez-vous pour pouvoir accéder aux données.<br />
+            Cliquez ici pour revenir au menu :<br />
+            <a href="app.php">
+                <img
+                    src="../img/back-button.png"
+                    alt="Icône surface"
+                    style="width: 45px; height: 45px; vertical-align: middle; margin-right: 8px"
+                />
+                Retour au menu
+            </a>
+        </p>
+        <div class="erreur">
+            <p>Informations saisies incorrectes</p>
+        </div>
+        <div id="error-message" class="erreur" style="display: none">
+            <p></p>
+        </div>
+
+        <div class="formulaire">
+            <p style="text-align: center">Veuillez renseigner les champs suivants pour vous connecter.</p>
+
+            <form id="connexion-form" action="[onshow.cible]" method="POST">
+                <fieldset>
+                    <legend>Formulaire de connexion</legend>
+                    <input type="hidden" name="action" value="form_connect" /><br />
+
+                    <div class="form-row">
+                        <label for="pseudo">Pseudo</label>
+                        <input type="text" name="pseudo" id="pseudo" class="pseudo" />
+                    </div>
+
+                    <div class="form-row">
+                        <label for="password">Mot de passe</label>
+                        <input type="password" name="password" id="password" class="password" />
+                    </div>
+
+                    <div class="btn-div">
+                        <input type="submit" value="Se connecter" />
+                        <input type="reset" value="Réinitialiser" />
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+
+        <script>
+            document.getElementById('connexion-form').addEventListener('submit', function (event) {
+                const pseudo = document.getElementById('pseudo').value.trim()
+                const password = document.getElementById('password').value.trim()
+                const errorDiv = document.getElementById('error-message')
+                const errorText = errorDiv.querySelector('p')
+
+                errorDiv.style.display = 'none'
+                errorText.textContent = ''
+
+                if (!pseudo || !password) {
+                    errorText.textContent = 'Veuillez compléter tous les champs.'
+                    errorDiv.style.display = 'flex'
+                    event.preventDefault()
+                }
+            })
+        </script>
+    </body>
+</html>

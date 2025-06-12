@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Fiche entreprise</title>
+        <link rel="stylesheet" href="../style/details.css" />
+    </head>
+    <body>
+        <h1>Fiche <span class="nameFiche"></span></h1>
+        <p>
+            <a href="../app/app.php?action=voir_entreprise">
+                <img
+                    src="../img/back-button.png"
+                    alt="Icône surface"
+                    style="width: 45px; height: 45px; vertical-align: middle; margin-right: 8px"
+                />
+                Retour à la liste des entreprises
+            </a>
+        </p>
+        <div class="container-details">
+            <h3>Informations entreprise</h3>
+            <!-- Groupe Mail -->
+            <div class="form-group">
+                <label for="email">Mail :</label>
+                <input type="email" id="email" />
+                <button class="modifier-mail">Modifier</button>
+            </div>
+
+            <!-- Groupe Téléphone -->
+            <div class="form-group">
+                <label for="telephone">Téléphone :</label>
+                <input type="tel" id="telephone" />
+                <button class="modifier-telephone">Modifier</button>
+            </div>
+
+            <!-- Groupe SIRET -->
+            <div class="form-group">
+                <label for="siret">SIRET :</label>
+                <input type="text" id="siret" />
+                <button class="modifier-siret">Modifier</button>
+            </div>
+            <h3>Adresse principale</h3>
+            <!-- Groupe Adresse (en ligne) -->
+            <div class="form-group-inline">
+                <div class="input-group">
+                    <label for="rue">Rue :</label>
+                    <input type="text" id="rue" />
+                </div>
+                <div class="input-group">
+                    <label for="code-postal">Code postal :</label>
+                    <input type="text" id="cp" />
+                </div>
+                <div class="input-group">
+                    <label for="ville">Ville :</label>
+                    <input type="text" id="ville" />
+                </div>
+                <button class="modifAdresseP">Modifier</button>
+            </div>
+            <h3>Contact principal</h3>
+            <!-- Groupe Contact principal (en ligne) -->
+            <div class="form-group-inline">
+                <div class="input-group">
+                    <label for="nom_clientP">Nom Prénom :</label>
+                    <input type="text" id="nom_clientP" />
+                </div>
+                <div class="input-group">
+                    <label for="mail_clientP">Mail :</label>
+                    <input type="email" id="mail_clientP" />
+                </div>
+                <div class="input-group">
+                    <label for="tel_clientP">Téléphone :</label>
+                    <input type="tel" id="tel_clientP" />
+                </div>
+                <div class="input-group">
+                    <label for="fixe_clientP">Téléphone fixe :</label>
+                    <input type="text" id="fixe_clientP" />
+                </div>
+                <button class="modifClientP">Modifier</button>
+            </div>
+            <div style="display: flex; justify-content: space-between">
+                <h3>Adresse(s) secondaire(s)</h3>
+                <div>
+                    <button class="add_adresse">Ajouter adresse</button>
+                    <button class="cache_adresse"></button>
+                </div>
+            </div>
+
+            <div class="adresses_secondaires" style="display: flex; gap: 20px; flex-wrap: wrap">
+                <!-- Contenu adresses secondaires -->
+            </div>
+            <div style="display: flex; justify-content: space-between">
+                <h3>Contact(s) secondaire(s)</h3>
+                <div>
+                    <button class="add_contact">Ajouter contact</button>
+                    <button class="cache_contact"></button>
+                </div>
+            </div>
+
+            <div class="contacts_secondaires" style="display: flex; gap: 20px; flex-wrap: wrap">
+                <!-- Contenu clients secondaires -->
+            </div>
+        </div>
+
+        <!-- ****************************** PopUp Ajout Client ****************************************** -->
+        <div class="popup-container popupClient hidden">
+            <div class="popUp popup-ajout-client">
+                <div class="popup-content">
+                    <h2>Ajout Client</h2>
+                    <div class="form-group">
+                        <label for="nomPrenomClient">Nom Prénom :</label>
+                        <input type="text" id="nomPrenomClient" />
+                    </div>
+                    <div class="form-group">
+                        <label for="mailClient">Mail :</label>
+                        <input type="email" id="mailClient" />
+                    </div>
+                    <div class="form-group">
+                        <label for="fixeClient">Téléphone fixe :</label>
+                        <input type="text" id="fixeClient" />
+                    </div>
+                    <div class="form-group">
+                        <label for="telClient">Téléphone portable :</label>
+                        <input type="tel" id="telClient" />
+                    </div>
+                    <div class="form-group">
+                        <label for="priorite">Ordre (optionnel):</label>
+                        <input type="number" id="priorite" min="1" />
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 10px">
+                        <button class="fermer-popup">Annuler</button>
+                        <button class="ajouter-client">Ajouter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ****************************** PopUp Ajout Adresse ****************************************** -->
+        <!-- Popup Ajout Adresse -->
+        <div class="popup-container popupAdresse hidden">
+            <div class="popUp popup-ajout-adresse">
+                <div class="popup-content">
+                    <h2>Ajout Adresse</h2>
+                    <div class="form-group">
+                        <label for="rueAdresse">Rue :</label>
+                        <input type="text" id="rueAdresse" />
+                    </div>
+                    <div class="form-group">
+                        <label for="codePostalAdresse">Code postal :</label>
+                        <input type="text" id="codePostalAdresse" />
+                    </div>
+                    <div class="form-group">
+                        <label for="villeAdresse">Ville :</label>
+                        <input type="text" id="villeAdresse" />
+                    </div>
+                    <div class="form-group">
+                        <label for="prioriteAdresse">Ordre (optionnel):</label>
+                        <input type="number" id="prioriteAdresse" min="1" />
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 10px">
+                        <button class="fermer-popup">Annuler</button>
+                        <button class="ajouter-adresse">Ajouter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script type="module" src="../src/popUp_contact.js"></script>
+        <script type="module" src="../src/popUp_adresse.js"></script>
+        <script type="module" src="../src/voir_details_entreprise.js"></script>
+    </body>
+</html>

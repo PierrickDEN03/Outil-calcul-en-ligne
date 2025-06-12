@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Visualisation des Entreprises</title>
+        <link rel="stylesheet" href="../style/voir_element.css" />
+    </head>
+    <body>
+        <h1>Visualisation des Entreprises</h1>
+        <p>
+            <a href="../app/app.php?action=backoffice">
+                <img
+                    src="../img/back-button.png"
+                    alt="Icône surface"
+                    style="width: 45px; height: 45px; vertical-align: middle; margin-right: 8px"
+                />Retour au Backoffice</a
+            >
+        </p>
+
+        <div class="container">
+            <!-- Tableau principal des enregistrements -->
+            <section class="table-section">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px">
+                    <h2>Historique des Entreprises</h2>
+                    <button class="btnPopUp">Ajouter Entreprise</button>
+                </div>
+
+                <!-- Barre de recherche -->
+
+                <div class="search-bar" style="margin-bottom: 16px">
+                    <input type="text" class="searchInput" placeholder="Rechercher une entreprise..." />
+                    <button class="searchBtn">Rechercher</button>
+                    <button class="delSearch">Annuler la recherche</button>
+                </div>
+
+                <!-- Champ déroulant pour trier -->
+
+                <label for="select_trie">Trier en fonction</label>
+                <select name="select_trie" class="select_trie">
+                    <option value="null">--------</option>
+                    <option value="nom">Nom Entreprise</option>
+                    <option value="cp">Code Postal</option>
+                    <option value="ville">Ville</option>
+                </select>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Entreprise</th>
+                            <th>Rue</th>
+                            <th>Code Postal</th>
+                            <th>Ville</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table_entreprises">
+                        <!-- Les données seront insérées ici dynamiquement -->
+                    </tbody>
+                </table>
+            </section>
+            <!-- ****************************** PopUp Ajout Entreprise et Client ****************************************** -->
+            <div class="popup-container popupEntreprise hidden">
+                <!-- Popup Ajout Entreprise et Client -->
+                <div class="popUp popup-ajout-entreprise-client">
+                    <div class="popup-content">
+                        <h2>Ajout Entreprise et Client</h2>
+
+                        <!-- Partie Entreprise -->
+                        <div class="entreprise-section">
+                            <h3>Entreprise</h3>
+
+                            <!-- Section Informations générales -->
+                            <div class="section-group">
+                                <h4>Informations générales</h4>
+                                <div class="form-group">
+                                    <label for="nomEntreprise">Nom de l'entreprise (obligatoire):</label>
+                                    <input type="text" id="nomEntreprise" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="siretEntreprise">Numéro de SIRET :</label>
+                                    <input type="text" id="siretEntreprise" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="mailEntreprise">E-mail :</label>
+                                    <input type="email" id="mailEntreprise" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="telephoneEntreprise">Numéro de téléphone :</label>
+                                    <input type="tel" id="telephoneEntreprise" />
+                                </div>
+                            </div>
+
+                            <!-- Section Adresse -->
+                            <div class="section-group">
+                                <h4>Adresse</h4>
+                                <div class="form-group">
+                                    <label for="rueEntreprise">Rue :</label>
+                                    <input type="text" id="rueEntreprise" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="codePostalEntreprise">Code postal :</label>
+                                    <input type="text" id="codePostalEntreprise" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="villeEntreprise">Ville :</label>
+                                    <input type="text" id="villeEntreprise" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Séparateur -->
+                        <hr class="section-separator" />
+
+                        <!-- Partie Client -->
+                        <div class="client-section">
+                            <h3>Client</h3>
+                            <div class="form-group">
+                                <label for="nomPrenomClient">Nom - Prénom :</label>
+                                <input type="text" id="nomPrenomClient" />
+                            </div>
+                            <div class="form-group">
+                                <label for="mailClient">E-mail :</label>
+                                <input type="email" id="mailClient" />
+                            </div>
+                            <div class="form-group">
+                                <label for="telephoneClient">Numéro de téléphone :</label>
+                                <input type="tel" id="telephoneClient" />
+                            </div>
+                            <div class="form-group">
+                                <label for="fixeClient">Numéro fixe :</label>
+                                <input type="tel" id="fixeClient" />
+                            </div>
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px">
+                            <button class="fermer-popup">Annuler</button>
+                            <button class="ajouter-entreprise-client">Ajouter</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="module" src="../src/popUp_add_entreprise.js"></script>
+        <script type="module" src="../src/voir_entreprise.js"></script>
+    </body>
+</html>
