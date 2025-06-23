@@ -25,7 +25,7 @@ Avant d'installer l'application, assurez-vous d'avoir :
 ### 1. Cloner le repository
 
 ```bash
-git clone [URL_DU_REPOSITORY]
+git clone https://github.com/PierrickDEN03/Outil-calcul-en-ligne.git
 cd [NOM_DU_PROJET]
 ```
 
