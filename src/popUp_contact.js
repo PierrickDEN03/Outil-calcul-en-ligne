@@ -2,6 +2,7 @@
 let maxPriorite
 let datasClients = []
 let id
+let datasAdresses = []
 
 window.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search)
@@ -17,14 +18,19 @@ window.addEventListener('DOMContentLoaded', () => {
         .then((response) => response.json())
         .then((datasFetch) => {
             datasClients = datasFetch.clients
-
+            datasAdresses = [...datasFetch.adressePrincipale, ...datasFetch.adressesSecondaires]
             if (datasClients.length > 0) {
                 maxPriorite = Math.max(...datasClients.map((c) => parseInt(c.priorite)))
             } else {
                 maxPriorite = 0 // Valeur par défaut si le tableau est vide
             }
-
-            console.log('popUP priorite : ', maxPriorite)
+            const selectAdresse = document.getElementById('adresse')
+            datasAdresses.forEach((item) => {
+                const option = document.createElement('option')
+                option.innerHTML = `${item.rue}, ${item.code_postal} ${item.ville}`
+                option.value = item.Id_adresse
+                selectAdresse.appendChild(option)
+            })
             inputPriorite.max = maxPriorite
         })
         .catch((error) => console.error('Erreur lors du chargement des données :', error))
@@ -135,10 +141,8 @@ btnAjouter.addEventListener('click', () => {
 
     const url = `../app/app.php?action=ajouter_clientS&nom=${encodeURIComponent(nomVal)}&mail=${encodeURIComponent(
         mailVal
-    )}&tel=${encodeURIComponent(telVal)}&fixe=${encodeURIComponent(fixeVal)}&priorite=${encodeURIComponent(
-        prioriteVal
-    )}&id=${encodeURIComponent(idEntreprise)}`
-
-    console.log(url)
+    )}&tel=${encodeURIComponent(telVal)}&fixe=${encodeURIComponent(fixeVal)}&adresseC=${encodeURIComponent(
+        document.getElementById('adresse').value
+    )}&priorite=${encodeURIComponent(prioriteVal)}&id=${encodeURIComponent(idEntreprise)}`
     window.location.href = url
 })

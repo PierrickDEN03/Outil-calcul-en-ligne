@@ -20,6 +20,13 @@
         </p>
         <div class="container-details">
             <h3>Informations entreprise</h3>
+            <!-- Groupe Nom -->
+            <div class="form-group">
+                <label for="nomE">Nom :</label>
+                <input type="text" id="nomE" />
+                <button class="modifier-nomE">Modifier</button>
+            </div>
+
             <!-- Groupe Mail -->
             <div class="form-group">
                 <label for="email">Mail :</label>
@@ -39,6 +46,15 @@
                 <label for="siret">SIRET :</label>
                 <input type="text" id="siret" />
                 <button class="modifier-siret">Modifier</button>
+            </div>
+
+            <!-- Groupe Modalités de paiement -->
+            <div class="form-group">
+                <label for="paiementE">Modalités de paiement :</label>
+                <select name="paiementE" id="paiementE">
+                    <!-- Rajout dynamique-->
+                </select>
+                <button class="modifier-paiementE">Modifier</button>
             </div>
             <h3>Adresse principale</h3>
             <!-- Groupe Adresse (en ligne) -->
@@ -76,6 +92,12 @@
                     <label for="fixe_clientP">Téléphone fixe :</label>
                     <input type="text" id="fixe_clientP" />
                 </div>
+                <div class="input-group">
+                    <label for="selectAdresseClientP">Adresse :</label>
+                    <select name="selectAdresseClientP" id="selectAdresseClientP">
+                        <!-- Géré dynamiquement -->
+                    </select>
+                </div>
                 <button class="modifClientP">Modifier</button>
             </div>
             <div style="display: flex; justify-content: space-between">
@@ -101,7 +123,47 @@
                 <!-- Contenu clients secondaires -->
             </div>
         </div>
-
+        <!-- ******************************** Tableau des devis de l'entreprise **************************************-->
+        <section class="container-details">
+            <h3>Liste des devis réalisés</h3>
+            <!-- Barre de recherche -->
+            <div class="search-bar" style="margin-bottom: 16px">
+                <input type="text" class="searchInput" placeholder="Rechercher un enregistrement..." />
+                <button class="searchBtn">Rechercher</button>
+                <button class="delSearch">Annuler la recherche</button>
+            </div>
+            <!-- Champ déroulant pour trier -->
+            <label for="select_trie">Trier en fonction</label>
+            <select name="select_trie" class="select_trie">
+                <option value="null">--------</option>
+                <option value="nom">Nom de devis</option>
+                <option value="type">Type d'enregistrement</option>
+                <option value="date">Date</option>
+                <option value="prix">Prix</option>
+                <option value="quantite">Quantité</option>
+            </select>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nom du devis</th>
+                        <th>Type</th>
+                        <th>Contact</th>
+                        <th>Date</th>
+                        <th>Format</th>
+                        <th>Type Impression</th>
+                        <th>Matière</th>
+                        <th>Quantité</th>
+                        <th>Prix (€)</th>
+                        <th>Longueur (cm)</th>
+                        <th>Largeur (cm)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="table_enregistrements">
+                    <!-- Les données seront insérées ici dynamiquement -->
+                </tbody>
+            </table>
+        </section>
         <!-- ****************************** PopUp Ajout Client ****************************************** -->
         <div class="popup-container popupClient hidden">
             <div class="popUp popup-ajout-client">
@@ -122,6 +184,12 @@
                     <div class="form-group">
                         <label for="telClient">Téléphone portable :</label>
                         <input type="tel" id="telClient" />
+                    </div>
+                    <div class="form-group">
+                        <label for="adresse">Adresse :</label>
+                        <select name="adresse" id="adresse">
+                            <!-- Rajouté dynamiquement -->
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="priorite">Ordre (optionnel):</label>

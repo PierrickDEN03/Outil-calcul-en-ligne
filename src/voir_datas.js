@@ -4,20 +4,20 @@ let datasEntreprises = []
 const inputRecherche = document.querySelector('.searchInput')
 const btnRecherche = document.querySelector('.searchBtn')
 const btnSupprRecherche = document.querySelector('.delSearch')
-const tabDatas = document.querySelector('.table_enregistrements')
+let tabDatas = document.querySelector('.table_enregistrements')
 const selectTrie = document.querySelector('.select_trie')
 
 window.addEventListener('DOMContentLoaded', () => {
     fetch('../api/datas.php')
         .then((response) => response.json())
         .then((datasFetch) => {
-            const datas = datasFetch.datas
-            const datasClients = datasFetch.clients
-            const datasEntreprises = datasFetch.entreprises
+            datas = datasFetch.datas
+            datasClients = datasFetch.clients
+            datasEntreprises = datasFetch.entreprises
 
-            console.log(datas)
-            console.log(datasClients)
-            console.log(datasEntreprises)
+            console.log('datas : ', datas)
+            console.log('datasClients : ', datasClients)
+            console.log('datasEntreprises : ', datasEntreprises)
 
             // Appel de fonction
             addTabDatas(datas, datasClients, datasEntreprises, tabDatas)
@@ -29,7 +29,7 @@ window.addEventListener('DOMContentLoaded', () => {
 selectTrie.addEventListener('change', () => {
     const critere = selectTrie.value
     const datasTrie = trieDatas(critere, datas)
-    addTabDatas(datasTrie, tabDatas)
+    addTabDatas(datasTrie, datasClients, datasEntreprises, tabDatas)
 })
 
 // Fonction utilitaire pour remplacer 0 ou "" par "_" sauf si type = "Matière" et champ = "espace_pose"
@@ -72,6 +72,7 @@ function addTabDatas(datas, datasClients, datasEntreprises, tabDatas) {
         const nomContact = datasClients.find((client) => {
             return parseInt(client.Id_client) === parseInt(data.Id_client)
         })?.nom_prenom
+        const nomMatiere = data.type_enregistrement === 'Feuille' ? data.nom_papier : data.nom_matiere
 
         // Colonnes en lecture seule avec formatage
         const tdDate = createReadOnlyCell(formatValue(data.date, data.type_enregistrement, 'date'))
@@ -80,8 +81,7 @@ function addTabDatas(datas, datasClients, datasEntreprises, tabDatas) {
         const tdPrix = createReadOnlyCell(formatValue(data.prix, data.type_enregistrement, 'prix'))
         const tdLongueur = createReadOnlyCell(formatValue(data.longueur, data.type_enregistrement, 'longueur'))
         const tdLargeur = createReadOnlyCell(formatValue(data.largeur, data.type_enregistrement, 'largeur'))
-        const tdMatiere = createReadOnlyCell(formatValue(data.matiere, data.type_enregistrement, 'matiere'))
-        const tdDecoupe = createReadOnlyCell(formatValue(data.decoupe, data.type_enregistrement, 'decoupe'))
+        const tdMatiere = createReadOnlyCell(formatValue(nomMatiere, data.type_enregistrement, 'matiere'))
         const tdFormat = createReadOnlyCell(formatValue(data.format, data.type_enregistrement, 'format'))
         const tdImpression = createReadOnlyCell(formatValue(data.type_impression, data.type_enregistrement, 'type_impression'))
         const tdEntreprise = createReadOnlyCell(nomEntreprise === undefined ? '_' : nomEntreprise)
@@ -91,7 +91,7 @@ function addTabDatas(datas, datasClients, datasEntreprises, tabDatas) {
         const tdActions = document.createElement('td')
 
         const btnModif = document.createElement('button')
-        btnModif.textContent = 'Confirmer les modifications'
+        btnModif.textContent = 'Modification rapide'
         btnModif.style.display = 'none'
         btnModif.classList.add('btn-modif')
         btnModif.addEventListener('click', () => {
@@ -128,16 +128,59 @@ function addTabDatas(datas, datasClients, datasEntreprises, tabDatas) {
             }
         })
 
+        //Bouton Modifier
+        const btnModifDevis = document.createElement('button')
+        const imgModifDevis = document.createElement('img')
+        imgModifDevis.src = '../img/edit.png'
+        imgModifDevis.style.width = '20px'
+        imgModifDevis.style.height = '20px'
+        btnModifDevis.appendChild(imgModifDevis)
+        btnModifDevis.addEventListener('click', () => {
+            //En fonction du type de devis, on renvoie sur une page de calcul différent
+            const direction = data.type_enregistrement === 'Feuille' ? 'calcul_impression' : 'calcul_matiere'
+            const url = `../app/app.php?action=${direction}&modif=modif&id=${encodeURIComponent(data.Id_enregistrement)}`
+            window.open(url, '_blank')
+        })
+
+        //Bouton dupliquer
+        const btnMPasteDevis = document.createElement('button')
+        const imgPasteDevis = document.createElement('img')
+        imgPasteDevis.src = '../img/copy.png'
+        imgPasteDevis.style.width = '20px'
+        imgPasteDevis.style.height = '20px'
+        btnMPasteDevis.appendChild(imgPasteDevis)
+        btnMPasteDevis.addEventListener('click', () => {
+            //En fonction du type de devis, on renvoie sur une page de calcul différent
+            const direction = data.type_enregistrement === 'Feuille' ? 'calcul_impression' : 'calcul_matiere'
+            const url = `../app/app.php?action=${direction}&modif=copy&id=${encodeURIComponent(data.Id_enregistrement)}`
+            window.open(url, '_blank')
+        })
+
+        //Bouton PDF
+        const btnPDF = document.createElement('button')
+        const img = document.createElement('img')
+        img.src = '../img/eye.png'
+        img.style.width = '20px'
+        img.style.height = '20px'
+        btnPDF.appendChild(img)
+        btnPDF.addEventListener('click', () => {
+            const url = `../app/app.php?action=devis_visualisation&id=${encodeURIComponent(data.Id_enregistrement)}`
+            window.open(url, '_blank')
+        })
+
         tdActions.appendChild(btnModif)
+        tdActions.appendChild(btnModifDevis)
+        tdActions.appendChild(btnMPasteDevis)
+        tdActions.appendChild(btnPDF)
         tdActions.appendChild(btnSuppr)
 
         // Ajout des cellules à la ligne
         tr.appendChild(tdHiddenId)
         tr.appendChild(tdNom)
+        tr.appendChild(tdType)
         tr.appendChild(tdEntreprise)
         tr.appendChild(tdContact)
         tr.appendChild(tdDate)
-        tr.appendChild(tdType)
         tr.appendChild(tdFormat)
         tr.appendChild(tdImpression)
         tr.appendChild(tdMatiere)
@@ -145,7 +188,6 @@ function addTabDatas(datas, datasClients, datasEntreprises, tabDatas) {
         tr.appendChild(tdPrix)
         tr.appendChild(tdLongueur)
         tr.appendChild(tdLargeur)
-        tr.appendChild(tdDecoupe)
 
         tr.appendChild(tdActions)
 
@@ -162,12 +204,13 @@ function createReadOnlyCell(value) {
 
 function trieDatas(trie, datas) {
     let datasTries = [...datas] // on fait une copie du tableau original
-
+    console.log('datasTries : ', datasTries)
     switch (trie) {
         case 'type':
             datasTries.sort((a, b) => a.type_enregistrement.localeCompare(b.type_enregistrement))
             break
         case 'nom':
+            console.log('nom')
             datasTries.sort((a, b) => a.nom_enregistrement.localeCompare(b.nom_enregistrement))
         case 'date':
             datasTries.sort((a, b) => new Date(a.date) - new Date(b.date))
@@ -189,7 +232,7 @@ function trieDatas(trie, datas) {
 btnRecherche.addEventListener('click', () => recherche(inputRecherche.value.toLowerCase()))
 btnSupprRecherche.addEventListener('click', () => {
     inputRecherche.value = ''
-    addTabDatas(datas, tabDatas)
+    addTabDatas(datas, datasClients, datasEntreprises, tabDatas)
 })
 
 function recherche(texte) {
@@ -197,11 +240,17 @@ function recherche(texte) {
         alert('Veuillez saisir un ou plusieurs termes de recherche')
         return
     }
+
     console.log('recherche avec le terme :', texte)
     const mots = texte.toLowerCase().split(' ')
 
     const datasFiltre = datas.filter((item) => {
-        //On met tout dans un string pour éviter des conditions
+        // Récupérer le client lié à l'enregistrement
+        const client = datasClients.find((c) => c.Id_client === item.Id_client)
+        // Récupérer l'entreprise liée au client (s'il y a un client)
+        const entreprise = client ? datasEntreprises.find((e) => e.Id_entreprise === client.entreprise_Id) : null
+
+        // Construire une chaîne de recherche complète
         const champ = `
             ${item.nom_enregistrement}
             ${item.date}
@@ -214,6 +263,8 @@ function recherche(texte) {
             ${item.type_enregistrement}
             ${item.type_impression}
             ${item.type_papier}
+            ${client ? client.nom_prenom : ''}
+            ${entreprise ? entreprise.nom_entreprise : ''}
         `.toLowerCase()
 
         return mots.some((mot) => champ.includes(mot))
@@ -222,7 +273,7 @@ function recherche(texte) {
     if (datasFiltre.length === 0) {
         alert(`Aucun résultat trouvé avec la recherche "${texte}"`)
     } else {
-        addTabDatas(datasFiltre, tabDatas)
+        addTabDatas(datasFiltre, datasClients, datasEntreprises, tabDatas)
         alert(`${datasFiltre.length} résultat(s) trouvé(s) avec la recherche "${texte}"`)
     }
 }

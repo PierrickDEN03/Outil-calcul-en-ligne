@@ -2,6 +2,7 @@ let datasMatieres = []
 let datasDegressif = []
 let datasFrais = []
 let datasDecoupe = []
+let datasLamination = []
 
 const tabMatieres = document.querySelector('.table_matiere')
 const tabDegressif = document.querySelector('.table_degressif')
@@ -11,6 +12,39 @@ let inputFrais = document.querySelector('.fraisFixe')
 let inputDecoupe = document.querySelector('.prix_decoupe')
 let btnFrais = document.querySelector('.submit_frais')
 let btnDecoupe = document.querySelector('.submit_decoupe')
+// **************** Pour les laminations
+let inputDescriptionLamination = document.querySelector('.label_lamination')
+let inputPrixLamination = document.querySelector('.prix_lamination')
+let selectLamination = document.querySelector('.select_lamination')
+selectLamination.addEventListener('change', () => {
+    if (selectLamination.value === 'new') {
+        divAddLamination.style.display = 'block'
+        divModifLamination.style.display = 'none'
+        inputDescriptionLamination.value = ''
+        inputPrixLamination.value = 0
+    } else {
+        divAddLamination.style.display = 'none'
+        divModifLamination.style.display = 'block'
+        console.log(datasLamination)
+
+        const lamination = datasLamination.find((lamination) => parseInt(lamination.Id_lamination) === parseInt(selectLamination.value))
+        console.log(lamination)
+        inputDescriptionLamination.value = lamination.description
+        inputPrixLamination.value = lamination.prix_lamination
+    }
+})
+
+// ** nouvelle lamination
+let divAddLamination = document.querySelector('.div_add_lamination')
+let btnAddLamination = document.querySelector('.add_lamination')
+btnAddLamination.addEventListener('click', (e) => addLamination(e))
+
+// ** modif lamination
+let divModifLamination = document.querySelector('.div_modif_lamination')
+let btnModifLamination = document.querySelector('.modif_lamination')
+let btnSupprLamination = document.querySelector('.suppr_lamination')
+btnModifLamination.addEventListener('click', (e) => modifLamination(e))
+btnSupprLamination.addEventListener('click', (e) => supprimerLamination(e))
 
 window.addEventListener('DOMContentLoaded', () => {
     //Récupération des éléments de la table matieres
@@ -19,18 +53,21 @@ window.addEventListener('DOMContentLoaded', () => {
         .then((datasFetch) => {
             datasMatieres = datasFetch.matieres
             datasDegressif = datasFetch.degressif
-            datasFrais = datasFetch.frais
-            datasDecoupe = datasFetch.decoupe
+            datasFrais = datasFetch.frais[0]
+            datasDecoupe = datasFetch.decoupe[0]
+            datasLamination = datasFetch.laminations
+            console.log('laminations : ', datasLamination)
             console.log(datasFrais)
-            console.log(datasFrais[0].prix_frais)
-            inputFrais.value = datasFrais[0].prix_frais
-            inputDecoupe.value = datasDecoupe[0].prix_decoupe
+            console.log(datasFrais.prix_frais)
+            inputFrais.value = datasFrais.prix_frais
+            inputDecoupe.value = datasDecoupe.prix_decoupe
 
             datasMatieres.sort((a, b) => a.nom_matiere.localeCompare(b.nom_matiere))
             datasDegressif.sort((a, b) => a.min - b.min)
 
             addTabMatieres(datasMatieres, tabMatieres)
             addTabDegressif(datasDegressif, tabDegressif)
+            addSelectLamination(datasLamination, selectLamination)
         })
         .catch((error) => console.error('Erreur lors du chargement des données :', error))
 })
@@ -220,6 +257,15 @@ function addTabDegressif(datasDegressif, tab) {
     })
 }
 
+function addSelectLamination(datasLamination, selectLamination) {
+    datasLamination.forEach((lamination) => {
+        const option = document.createElement('option')
+        option.value = lamination.Id_lamination
+        option.innerHTML = lamination.description
+        selectLamination.appendChild(option)
+    })
+}
+
 function addMatiere() {
     const nom = document.getElementById('newNom').value.trim()
     console.log(nom)
@@ -279,7 +325,7 @@ btnFrais.addEventListener('click', (e) => {
     }
 
     let frais = inputFrais.value
-    let id = datasFrais[0].Id_frais
+    let id = datasFrais.Id_frais
     const url = `../app/app.php?action=modif_frais&id=${encodeURIComponent(id)}&frais=${encodeURIComponent(frais)}`
     window.location.href = url
 })
@@ -293,7 +339,42 @@ btnDecoupe.addEventListener('click', (e) => {
     }
 
     let decoupe = inputDecoupe.value
-    let id = datasDecoupe[0].Id_decoupe
+    let id = datasDecoupe.Id_decoupe
     const url = `../app/app.php?action=modif_decoupe&id=${encodeURIComponent(id)}&prix_decoupe=${encodeURIComponent(decoupe)}`
     window.location.href = url
 })
+
+/* ============================= LAMINATIONS ======================================== */
+function addLamination(e) {
+    e.preventDefault()
+    const description = inputDescriptionLamination.value
+    const prix = inputPrixLamination.value
+    if (description === '' || isNaN(prix) || prix <= 0) {
+        alert('Veuillez renseigner une description et un prix corrects')
+        return
+    }
+    const url = `../app/app.php?action=add_lamination&prixL=${encodeURIComponent(prix)}&descriptionL=${encodeURIComponent(description)}`
+    window.location.href = url
+}
+function modifLamination(e) {
+    e.preventDefault()
+    const id = selectLamination.value
+    const description = inputDescriptionLamination.value
+    const prix = inputPrixLamination.value
+    if (description === '' || isNaN(prix) || prix <= 0) {
+        alert('Veuillez renseigner une description et un prix corrects')
+        return
+    }
+    const url = `../app/app.php?action=modif_lamination&idL=${encodeURIComponent(id)}&prixL=${encodeURIComponent(
+        prix
+    )}&descriptionL=${encodeURIComponent(description)}`
+    window.location.href = url
+}
+function supprimerLamination(e) {
+    e.preventDefault()
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette lamination ?')) {
+        const id = selectLamination.value
+        const url = `../app/app.php?action=suppr_lamination&idL=${id}`
+        window.location.href = url
+    }
+}

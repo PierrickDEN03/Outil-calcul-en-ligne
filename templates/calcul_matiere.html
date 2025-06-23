@@ -37,10 +37,28 @@
                         <input type="number" class="input-qte" min="1" />
                     </div>
                     <div class="form-row">
+                        <label for="select-matiere">Lamination</label>
+                        <select class="select-lamination">
+                            <option value="-1">------</option>
+                        </select>
+                    </div>
+                    <div>
+                        <div class="form-row">
+                            <label for="designationBtn">Complément(s) : </label>
+                            <button name="designationBtn" class="designationBtn">Ajouter +</button>
+                        </div>
+                        <!-- Désignations gérés via JS -->
+                        <div class="designation-row"></div>
+                    </div>
+                    <div class="form-row">
                         <label for="select-matiere">Choisir une matière</label>
                         <select class="select-matiere">
                             <option value="null">------</option>
                         </select>
+                        <!-- Bouton Voir -->
+                        <button type="button" class="button-voir-matiere" onclick="window.open('../app/app.php?action=voir_matiere')">
+                            Voir ou créer matière
+                        </button>
                     </div>
                     <div class="form-row">
                         <label for="input-espace">Espace entre les poses (mm)</label>
@@ -80,14 +98,12 @@
                     </div>
                     <div class="form-row">
                         <button type="button" class="btnValiderDevis">Enregistrer le devis</button>
-                        <!-- Bouton Voir -->
-                        <button type="button" class="button-voir-matiere" onclick="window.open('../app/app.php?action=voir_matiere')">
-                            Voir ou créer matière
-                        </button>
                     </div>
                 </div>
             </div>
         </div>
+        <script type="module" src="../src/gestion_entreprise.js"></script>
         <script type="module" src="../src/matieres.js"></script>
+        <script type="module" src="../src/designations.js"></script>
     </body>
 </html>

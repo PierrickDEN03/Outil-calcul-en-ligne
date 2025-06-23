@@ -28,8 +28,8 @@
                             <th>Id</th>
                             <th>Nom</th>
                             <th>Grammage (en g)</th>
-                            <th>Prix Recto (en €)</th>
-                            <th>Prix Recto/Verso (en €)</th>
+                            <th>Prix Recto (par SRA3)</th>
+                            <th>Prix Recto/Verso (par SRA3)</th>
                             <th>Code Matière</th>
                             <th>Actions</th>
                         </tr>
@@ -49,6 +49,29 @@
                     </tfoot>
                 </table>
             </section>
+
+            <div style="display: flex; justify-content: space-between; gap: 50px">
+                <!-- Section pour modifier le frais fixe -->
+                <section class="form-section">
+                    <h2>Frais fixe</h2>
+                    <form class="form_champ">
+                        <label for="fraisFixe">Montant (€) :</label>
+                        <input type="number" class="fraisFixe" name="fraisFixe" value="0" step="0.01" min="0" />
+                        <button type="submit" class="submit_frais">Modifier</button>
+                    </form>
+                </section>
+                <!-- Section pour modifier le prix de la découpe -->
+                <section class="form-section">
+                    <h2>Prix de l'option pliage simple</h2>
+                    <form class="form_champ">
+                        <label for="prix_pliage">Montant (par impression) :</label>
+                        <input type="number" class="prix_pliage" name="prix_pliage" value="0" step="0.01" min="0" />
+                        <label for="frais_pliage">Frais de lancement :</label>
+                        <input type="number" class="frais_pliage" name="frais_pliage" value="0" step="0.01" min="0" />
+                        <button type="submit" class="submit_pliage">Modifier</button>
+                    </form>
+                </section>
+            </div>
 
             <!-- Deuxième tableau pour d'autres données -->
             <section class="table-section">

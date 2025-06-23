@@ -1,4 +1,3 @@
-<!-- Appartient au modèle -->
 <?php
 /**
  *

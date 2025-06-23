@@ -28,7 +28,7 @@
                             <th>Id</th>
                             <th>Nom</th>
                             <th>Type Matière</th>
-                            <th>Laize</th>
+                            <th>Laize (en cm)</th>
                             <th>Prix m²</th>
                             <th>Code</th>
                             <th>Actions</th>
@@ -58,6 +58,28 @@
                         <label for="fraisFixe">Montant (€) :</label>
                         <input type="number" class="fraisFixe" name="fraisFixe" value="0" step="0.01" min="0" />
                         <button type="submit" class="submit_frais">Modifier</button>
+                    </form>
+                </section>
+                <!-- Section pour modifier le prix de la lamination -->
+                <section class="form-section">
+                    <h2>Laminations</h2>
+                    <form class="form_champ">
+                        <label for="prix_decoupe">Choisir une lamination :</label>
+                        <select name="select_lamination" class="select_lamination">
+                            <option value="new">NOUVELLE LAMINATION</option>
+                            <!--Rajouts dynamiques-->
+                        </select>
+                        <label for="label_lamination">Description :</label>
+                        <input type="text" class="label_lamination" name="label_lamination" placeholder="Nom lamination..." />
+                        <label for="prix_lamination">Montant (en €/m²) :</label>
+                        <input type="number" class="prix_lamination" name="prix_lamination" value="0" step="0.01" min="0" />
+                        <div class="div_add_lamination">
+                            <button type="button" class="add_lamination">Ajouter</button>
+                        </div>
+                        <div class="hidden div_modif_lamination">
+                            <button type="button" class="modif_lamination">Modifier</button>
+                            <button type="button" class="suppr_lamination">Supprimer</button>
+                        </div>
                     </form>
                 </section>
                 <!-- Section pour modifier le prix de la découpe -->

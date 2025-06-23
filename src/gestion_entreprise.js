@@ -1,10 +1,19 @@
+import { datasDevis, devisLoaded } from './getDevisWithId.js'
+console.log('datas devis e c : ', datasDevis)
 let datasEntreprises = []
 let datasClients = []
 let datasAdressesPrincipales = []
 export let idClient = -1
-
+let entrepriseSelect
+let clientSelect
+let selectEntreprise = document.querySelector('.selectEntreprise')
+let selectClient = document.querySelector('.selectClient')
+let action
 window.addEventListener('DOMContentLoaded', () => {
-    let entrepriseSelect = new Choices('.selectEntreprise', {
+    const params = new URLSearchParams(window.location.search)
+    const idDevis = params.get('id')
+    action = params.get('modif')
+    entrepriseSelect = new Choices('.selectEntreprise', {
         searchEnabled: true,
         itemSelectText: '',
         shouldSort: true,
@@ -15,12 +24,19 @@ window.addEventListener('DOMContentLoaded', () => {
         .then((response) => response.json())
         .then((datasFetch) => {
             datasEntreprises = datasFetch.entreprises
+            console.log('Entreprises : ', datasEntreprises)
             datasClients = datasFetch.clients
             datasAdressesPrincipales = datasFetch.adressesPrincipales
             console.log(datasAdressesPrincipales)
             datasEntreprises.sort((a, b) => a.nom_entreprise.localeCompare(b.nom_entreprise))
-            datasClients.sort((a, b) => a.nom_prenom.localeCompare(b.nom_prenom))
-            console.log(datasClients)
+            datasClients.sort((a, b) => a.priorite - b.priorite)
+            clientSelect = new Choices(selectClient, {
+                searchEnabled: true,
+                itemSelectText: '',
+                shouldSort: false,
+                placeholderValue: 'Sélectionner un client',
+            })
+            clientSelect.enable()
             entrepriseSelect.setChoices([
                 { value: 'null', label: '-----------' },
                 ...datasEntreprises.map((e) => {
@@ -40,19 +56,17 @@ window.addEventListener('DOMContentLoaded', () => {
                     }
                 }),
             ])
+            if (idDevis && action === 'modif') {
+                devisLoaded.then(() => {
+                    //Fonction qui regénère le client et l'entreprise
+                    handleEntrepriseWithDevis()
+                })
+            }
         })
         .catch((error) => console.error('Erreur lors du chargement des données :', error))
 })
 
 let btnAddClient = document.querySelector('.add_client')
-let selectClient = document.querySelector('.selectClient')
-let selectEntreprise = document.querySelector('.selectEntreprise')
-let clientSelect = new Choices('.selectClient', {
-    searchEnabled: true,
-    itemSelectText: '',
-    shouldSort: true,
-    placeholderValue: 'Sélectionner un client',
-})
 
 //Listener pour le bouton addClient
 btnAddClient.addEventListener('click', () => {
@@ -70,15 +84,16 @@ selectClient.addEventListener('change', (e) => {
 //Listener sur le select des entreprises
 selectEntreprise.addEventListener('change', () => {
     idClient = -1
+
     if (selectEntreprise.value === 'null') {
         document.querySelector('.hiddenClient').style.display = 'none'
         return
     }
-    console.log('changee')
     const idEntreprise = selectEntreprise.value
     const clients = datasClients.filter((client) => {
         return parseInt(client.entreprise_Id) === parseInt(idEntreprise)
     })
+    console.log('change entreprise id : ', idEntreprise)
     //S'il y a plusieurs clients de cet entreprise, on affiche le select pour les clients
     if (parseInt(clients.length) === 0) {
         document.querySelector('.hiddenClient').style.display = 'none'
@@ -109,4 +124,35 @@ selectEntreprise.addEventListener('change', () => {
 
 export function getIdClient() {
     return idClient
+}
+
+export function handleEntrepriseWithDevis() {
+    const nomEntreprise = datasDevis.entreprise_nom?.trim().toLowerCase()
+    const idEntreprise = datasEntreprises.find((e) => e.nom_entreprise.trim().toLowerCase() === nomEntreprise)?.Id_entreprise
+
+    // Sélectionne et déclenche le changement
+    entrepriseSelect.setChoiceByValue(idEntreprise)
+    selectEntreprise.value = idEntreprise
+    const clients = datasClients.filter((client) => {
+        return parseInt(client.entreprise_Id) === parseInt(idEntreprise)
+    })
+    clientSelect.setChoices(
+        clients.map((c) => ({
+            value: c.Id_client,
+            label: `${c.nom_prenom} (${c.mail})`,
+        })),
+        'value',
+        'label',
+        false
+    )
+    if (clients.length > 1) {
+        // Ce code s'exécutera après que le change ait été géré
+        document.querySelector('.hiddenClient').style.display = 'flex'
+    }
+
+    const idClient = datasDevis.client_id
+    console.log('id trouvé : ', idClient)
+    clientSelect.setChoiceByValue(idClient)
+    selectClient.value = idClient
+    console.log(clientSelect.value)
 }

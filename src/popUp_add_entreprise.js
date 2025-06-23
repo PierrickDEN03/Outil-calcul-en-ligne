@@ -3,9 +3,24 @@ const codePostalRegex = /^\d{5}$/
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const telRegex = /^\d{10}$/
 const siretRegex = /^\d{14}$/
+let datasPaiement = []
 
 //A l'initialisation de la fenetre, on rajoute tous les masques
 window.addEventListener('DOMContentLoaded', () => {
+    fetch('../api/paiement.php')
+        .then((response) => response.json())
+        .then((datasFetch) => {
+            const selectPaiement = document.getElementById('selectPaiement')
+            datasPaiement = datasFetch.infos
+            console.log(datasPaiement)
+            datasPaiement.forEach((item) => {
+                const option = document.createElement('option')
+                option.value = item.Id_paiement
+                option.innerHTML = item.label_paiement
+                selectPaiement.appendChild(option)
+            })
+        })
+        .catch((error) => console.error('Erreur lors du chargement des données : ', error))
     // Application du masque téléphone sur les champs concernés
     if (inputTelephoneEntreprise) applyPhoneMask(inputTelephoneEntreprise)
     if (inputTelephoneClient) applyPhoneMask(inputTelephoneClient)
@@ -131,13 +146,13 @@ btnAjouterEntrepriseClient.addEventListener('click', () => {
     mailEntrepriseVal = mailEntrepriseVal === '' ? 'Non renseigné' : mailEntrepriseVal
     telephoneEntrepriseVal = telephoneEntrepriseVal === '' ? 'Non renseigné' : telephoneEntrepriseVal
     rueEntrepriseVal = rueEntrepriseVal === '' ? 'Non renseigné' : rueEntrepriseVal
-    codePostalEntrepriseVal = codePostalEntrepriseVal === '' ? 'Non renseigné' : codePostalEntrepriseVal
+    codePostalEntrepriseVal = codePostalEntrepriseVal === '' ? '00000' : codePostalEntrepriseVal
     villeEntrepriseVal = villeEntrepriseVal === '' ? 'Non renseigné' : villeEntrepriseVal
 
     nomPrenomClientVal = nomPrenomClientVal === '' ? 'Non renseigné' : nomPrenomClientVal
     mailClientVal = mailClientVal === '' ? 'Non renseigné' : mailClientVal
-    telephoneClientVal = telephoneClientVal === '' ? 'Non renseigné' : telephoneClientVal
-    fixeClientVal = fixeClientVal === '' ? 'Non renseigné' : fixeClientVal
+    telephoneClientVal = telephoneClientVal === '' ? '00000000' : telephoneClientVal
+    fixeClientVal = fixeClientVal === '' ? '00000000' : fixeClientVal
 
     // Construction de l'URL avec tous les paramètres
     const url =
@@ -146,6 +161,7 @@ btnAjouterEntrepriseClient.addEventListener('click', () => {
         `&siretEntreprise=${encodeURIComponent(siretEntrepriseVal)}` +
         `&mailEntreprise=${encodeURIComponent(mailEntrepriseVal)}` +
         `&telephoneEntreprise=${encodeURIComponent(telephoneEntrepriseVal)}` +
+        `&mpaiement=${encodeURIComponent(document.getElementById('selectPaiement').value)}` +
         `&rueEntreprise=${encodeURIComponent(rueEntrepriseVal)}` +
         `&codePostalEntreprise=${encodeURIComponent(codePostalEntrepriseVal)}` +
         `&villeEntreprise=${encodeURIComponent(villeEntrepriseVal)}` +
@@ -154,7 +170,7 @@ btnAjouterEntrepriseClient.addEventListener('click', () => {
         `&telephoneClient=${encodeURIComponent(telephoneClientVal)}` +
         `&fixeClient=${encodeURIComponent(fixeClientVal)}`
 
-    //console.log('URL ajout entreprise-client:', url)
+    console.log('URL ajout entreprise-client:', url)
     window.location.href = url
 })
 

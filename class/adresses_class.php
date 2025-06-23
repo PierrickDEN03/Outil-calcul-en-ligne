@@ -178,6 +178,11 @@ class AccesAdresses {
         $update->bindParam(":nouvellePriorite", $nouvellePriorite, PDO::PARAM_INT);
         $update->execute();
     }
+
+    public function getLastId(){
+        // Utilise la connexion courante pour éviter les problèmes de concurrence
+        return $this->pdo->lastInsertId();
+    }
 }
 
 

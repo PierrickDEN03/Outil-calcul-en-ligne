@@ -1,11 +1,54 @@
 // Définition des variables
 let datasImpressions = []
 let datasDegressif = []
+let fraisFixe = []
+let infosPliage = []
 
 const tabImpression = document.querySelector('.table_matiere')
 const tabDegressif = document.querySelector('.table_degressif')
 const btnAddImpr = document.querySelector('.btnAdd')
 const btnAddPalier = document.querySelector('.btnAddPalier')
+let inputFraisFixe = document.querySelector('.fraisFixe')
+let inputPrixPliage = document.querySelector('.prix_pliage')
+let inputFraisPliage = document.querySelector('.frais_pliage')
+const btnModifPliage = document.querySelector('.submit_pliage')
+const btnFrais = document.querySelector('.submit_frais')
+
+//EventListeners
+btnAddImpr.addEventListener('click', addImpression)
+btnAddPalier.addEventListener('click', addDegImpr)
+//Modification frais fixe
+btnFrais.addEventListener('click', (e) => {
+    e.preventDefault()
+    if (parseFloat(inputFraisFixe.value) <= 0 || isNaN(parseFloat(inputFraisFixe.value))) {
+        alert('Veuillez saisir un frais fixe correct.')
+        return
+    }
+
+    let frais = inputFraisFixe.value
+    let id = fraisFixe.Id_frais
+    const url = `../app/app.php?action=modif_frais_impr&id=${encodeURIComponent(id)}&frais=${encodeURIComponent(frais)}`
+    window.location.href = url
+})
+//Modification infos pliage
+btnModifPliage.addEventListener('click', (e) => {
+    e.preventDefault()
+    if (parseFloat(inputFraisPliage.value) <= 0 || isNaN(parseFloat(inputFraisPliage.value))) {
+        alert('Veuillez saisir un frais de lancement correct.')
+        return
+    }
+    if (parseFloat(inputPrixPliage.value) <= 0 || isNaN(parseFloat(inputPrixPliage.value))) {
+        alert('Veuillez saisir un prix de pliage correct.')
+        return
+    }
+    let id = infosPliage.Id_pliage
+    const fraisPliage = inputFraisPliage.value
+    const prixPliage = inputPrixPliage.value
+    const url = `../app/app.php?action=modif_infos_pliage&id=${encodeURIComponent(id)}&frais=${encodeURIComponent(
+        fraisPliage
+    )}&prixPliage=${encodeURIComponent(prixPliage)}`
+    window.location.href = url
+})
 
 window.addEventListener('DOMContentLoaded', () => {
     //Récupération des éléments de la tables impressions
@@ -14,18 +57,24 @@ window.addEventListener('DOMContentLoaded', () => {
         .then((datasFetch) => {
             datasImpressions = datasFetch.impressions
             datasDegressif = datasFetch.degressif
+            infosPliage = datasFetch.pliage[0]
+            fraisFixe = datasFetch.frais[0]
+            console.log('infosPliage : ', infosPliage)
+            console.log('frais fixe : ', fraisFixe)
 
             datasImpressions.sort((a, b) => a.nom_papier.localeCompare(b.nom_papier))
             datasDegressif.sort((a, b) => a.min - b.min)
 
             addTabMatiere(datasImpressions, tabImpression)
             addTabDegressif(datasDegressif, tabDegressif)
+
+            //Assignation des valeurs des inputs frais et pliage
+            inputFraisFixe.value = fraisFixe.prix_frais
+            inputPrixPliage.value = infosPliage.prix_pliage
+            inputFraisPliage.value = infosPliage.frais_fixe
         })
         .catch((error) => console.error('Erreur lors du chargement des données :', error))
 })
-
-btnAddImpr.addEventListener('click', addImpression)
-btnAddPalier.addEventListener('click', addDegImpr)
 
 function addTabMatiere(datasImpressions, tabImpression) {
     datasImpressions.forEach((impression) => {

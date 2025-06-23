@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Visualisation Devis</title>
+        <link rel="stylesheet" href="../style/devis.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    </head>
+    <body>
+        <button class="btnGenererPDF">Générer PDF</button>
+        <div class="PDF_content">
+            <header class="header">
+                <div class="company-details">
+                    <p>
+                        <span class="ref">V/Réf. : <span class="ref_header"></span></span>
+                        <br />
+
+                        <span class="phone">Tél. : <span class="telephone_header"></span></span>
+                        <br />
+
+                        <span class="email">email : <span class="mail_header"></span></span>
+                    </p>
+                    <p>
+                        <span class="nomE_header"></span><br />
+                        <span class="nomC_header"></span><br />
+                        <span class="adresse_header"></span><br />
+                        <span class="cp_header"></span>, <span class="ville_header"></span>
+                    </p>
+                </div>
+            </header>
+            <div class="content-body">
+                <div class="quote-info">
+                    <strong
+                        ><p class="quote-number">Offre N°<span class="offre-numero"></span></p
+                    ></strong>
+                    <p class="quote-validity">(offre valable 1 mois)</p>
+                </div>
+
+                <section class="intro-message">
+                    <div class="date_devis_message">
+                        <p>
+                            <span>Genilac, le <span class="today_date"></span></span>
+                        </p>
+                    </div>
+
+                    <p>
+                        <i>
+                            <span>Monsieur/ Madame <span class="nomC"></span>,</span>
+                        </i>
+                    </p>
+                    <p><i>Nous vous prions de bien vouloir prendre connaissance de notre offre ci-après.</i></p>
+                </section>
+
+                <section class="designation-section">
+                    <p class="designation-title"><strong>Désignation : </strong></p>
+                    <div class="designation-content">
+                        <div class="body_name_devis"></div>
+                        <div class="infos_generales">
+                            <p>Quantité : <span class="qte_body"></span></p>
+                            <p>Matière : <span class="matiere_body"></span></p>
+                        </div>
+                        <br />
+                        <div class="feuilles_infos">
+                            <p><strong>Impressions</strong></p>
+                            <p>Format : <span class="format"></span></p>
+                            <p>Type d'impression : <span class="type_impr"></span></p>
+                            <p>Pliage simple : <span class="pliage"></span></p>
+                        </div>
+                        <div class="matieres_infos">
+                            <p><strong>Surfaces</strong></p>
+                            <p>Dimensions : <span class="dimension_body"></span></p>
+                            <p>Espace pose : <span class="espace_pose_body"></span></p>
+                            <p>Découpe : <span class="decoupe_body"></span></p>
+                        </div>
+                        <br />
+                        <div class="designations"></div>
+                    </div>
+                </section>
+
+                <section class="pricing-section">
+                    <table class="pricing-table">
+                        <thead>
+                            <tr>
+                                <th>Quantités</th>
+                                <th>Prix € HT</th>
+                                <th>Montant € TTC</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="main-price-row">
+                                <td class="quantity-cell"><span class="quantite-prix"></span> ex.</td>
+                                <td class="price-ht-cell"><span class="prix-ht"></span></td>
+                                <td class="price-ttc-cell"><span class="prix-ttc"></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section class="order-instructions">
+                    <p>Nous vous remercions pour votre demande et vous prions d'agréer l'expression de nos sentiments distingués.</p>
+                    <p>Cordialement, Pierre-Alain ANGLADE.</p>
+                    <br />
+                    <p>
+                        <u>
+                            Pour confirmer votre commande, merci de nous retourner un exemplaire du présent devis, avec votre bon pour
+                            accord, daté et signé.
+                        </u>
+                    </p>
+                </section>
+            </div>
+
+            <footer class="footer">
+                <p>
+                    <strong>Règlement : <span class="reglement"></span></strong>
+                </p>
+                <div class="footer-page">
+                    <span class="page-number">Page 1 / 1</span>
+                </div>
+            </footer>
+        </div>
+
+        <script type="module" src="../src/devis_visualisation.js"></script>
+    </body>
+</html>

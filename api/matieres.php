@@ -12,7 +12,8 @@ try {
         "matieres" => $acc->getMatieres(),
         "degressif" => $acc ->getDegressif(),
         "frais" => $acc ->getFrais(),
-        "decoupe" =>$acc ->getPrixDecoupe()
+        "decoupe" =>$acc ->getPrixDecoupe(),
+        "laminations" =>$acc ->getLaminations()
     ]);
 } catch (PDOException $e) {
     echo json_encode(["error" => "Erreur de connexion : " . $e->getMessage()]);

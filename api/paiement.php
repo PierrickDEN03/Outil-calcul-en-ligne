@@ -1,19 +1,13 @@
 <?php
 header("Content-Type: application/json");
 require("../utils/db_login.php");
-require("../class/impressions_class.php");
-
+require("../class/paiements_class.php");
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $login, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $acc = new AccesDatasImpr($pdo);
+    $acc = new AccesPaiement($pdo);
     echo json_encode([
-        "impressions" => $acc->getImpressions(),
-        "nbOnPaper" => $acc->getNbOnPaper(),
-        "degressif" => $acc->getDegressif(),
-        "frais" => $acc->getFrais(),
-        "pliage" => $acc->getPliageInfos()
-
+        "infos" => $acc->getPaiements(),
     ]);
 } catch (PDOException $e) {
     echo json_encode(["error" => "Erreur de connexion : " . $e->getMessage()]);

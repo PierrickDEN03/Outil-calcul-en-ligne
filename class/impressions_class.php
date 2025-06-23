@@ -20,8 +20,23 @@ class AccesDatasImpr {
         $this->pdo = $pdo;
     }
 
+    public function getFrais(){
+        $query = $this->pdo->prepare('SELECT * FROM frais_fixe_impr');
+        $query->execute();
+        $result = $query->fetchAll(PDO::FETCH_ASSOC);
+        return $result;  
+    }
+
+    public function getPliageInfos(){
+        $query = $this->pdo->prepare('SELECT * FROM pliage');
+        $query->execute();
+        $result = $query->fetchAll(PDO::FETCH_ASSOC);
+        return $result;  
+    }
+    
+
     public function getImpressions() {
-        $query = $this->pdo->prepare('SELECT * FROM impressions');
+        $query = $this->pdo->prepare('SELECT * FROM impressions WHERE Id_papier !=-1');
         $query->execute();
         $result = $query->fetchAll(PDO::FETCH_ASSOC);
         return $result;
@@ -91,7 +106,20 @@ class AccesDatasImpr {
         $res->execute();
     }
 
+    public function modifFrais($id,$frais){
+        $res=$this->pdo->prepare("UPDATE frais_fixe_impr SET prix_frais=:frais WHERE Id_frais=:id");
+        $res->bindParam(":id",$id);
+        $res->bindParam(":frais",$frais);
+        $res->execute();
+    }
 
+    public function modifPliage($id,$frais,$prix){
+        $res=$this->pdo->prepare("UPDATE pliage SET frais_fixe=:frais, prix_pliage=:prix WHERE Id_pliage=:id");
+        $res->bindParam(":id",$id);
+        $res->bindParam(":frais",$frais);
+        $res->bindParam(":prix",$prix);
+        $res->execute();
+    }
 }
 
 

@@ -20,7 +20,14 @@ class AccesDatasMatiere {
     }
 
     public function getMatieres() {
-        $query = $this->pdo->prepare('SELECT * FROM matieres');
+        $query = $this->pdo->prepare('SELECT * FROM matieres WHERE Id_matiere !=-1');
+        $query->execute();
+        $result = $query->fetchAll(PDO::FETCH_ASSOC);
+        return $result;
+    }
+
+    public function getLaminations() {
+        $query = $this->pdo->prepare('SELECT * FROM laminations WHERE Id_lamination!=-1');
         $query->execute();
         $result = $query->fetchAll(PDO::FETCH_ASSOC);
         return $result;
@@ -34,7 +41,7 @@ class AccesDatasMatiere {
     }
 
     public function getFrais() {
-        $query = $this->pdo->prepare('SELECT * FROM frais_fixe');
+        $query = $this->pdo->prepare('SELECT * FROM frais_fixe_mat');
         $query->execute();
         $result = $query->fetchAll(PDO::FETCH_ASSOC);
         return $result;
@@ -98,7 +105,7 @@ class AccesDatasMatiere {
     }
 
     public function modifFrais($id,$frais){
-        $res=$this->pdo->prepare("UPDATE frais_fixe SET prix_frais=:frais WHERE Id_frais=:id");
+        $res=$this->pdo->prepare("UPDATE frais_fixe_mat SET prix_frais=:frais WHERE Id_frais=:id");
         $res->bindParam(":id",$id);
         $res->bindParam(":frais",$frais);
         $res->execute();
@@ -111,6 +118,26 @@ class AccesDatasMatiere {
         $res->execute();
     }
 
+    public function addLamination($description, $prix){
+        $res=$this->pdo->prepare("INSERT INTO laminations (`description`, `prix_lamination`) VALUES (:descr, :prix);");
+        $res->bindParam(":descr",$description);
+        $res->bindParam(":prix",$prix);
+        $res->execute();
+    }
+
+    public function supprimerLamination($id) {
+        $query = $this->pdo->prepare("DELETE FROM laminations WHERE Id_lamination = :id");
+        $query->bindParam(":id", $id);
+        $query->execute();
+    }
+
+    public function modifLamination($id,$description, $prix){
+        $res=$this->pdo->prepare("UPDATE laminations SET `description`=:descr, `prix_lamination`=:prix WHERE Id_lamination=:id");
+        $res->bindParam(":id",$id);
+        $res->bindParam(":descr",$description);
+        $res->bindParam(":prix",$prix);
+        $res->execute();
+    }
 }
 
 

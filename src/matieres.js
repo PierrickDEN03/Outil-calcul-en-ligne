@@ -1,10 +1,13 @@
 import { getIdClient } from './gestion_entreprise.js'
+import { getDatasDesignations, verifDesignations, getTotalPrixDesignation } from './designations.js'
+import { datasDevis as datasDevisMat, devisLoaded } from './getDevisWithId.js'
 
 // *************************************** Définition des variables
 let datasMatieres = []
 let datasDegressif = []
 let datasFrais = []
 let datasDecoupe = []
+let datasLamination = []
 let fraisLancement
 let globalPrixDecoupe
 let idData
@@ -12,41 +15,56 @@ let session
 const spanFraisFixe = document.querySelector('.fraix_fixe')
 const spanPrixDecoupe = document.querySelector('.prix_decoupe_span')
 let resultats = []
-
+//Modif ou duplicat de devis
+let idDevis
+let action
 //Appel de la bse de données
 window.addEventListener('DOMContentLoaded', () => {
-    fetch('../api/matieres.php')
-        .then((response) => response.json())
-        .then((datasFetch) => {
-            console.log(datasFetch)
-            datasMatieres = datasFetch.matieres
-            datasDegressif = datasFetch.degressif
-            datasFrais = datasFetch.frais
-            datasDecoupe = datasFetch.decoupe
+    const params = new URLSearchParams(window.location.search)
+    idDevis = params.get('id')
+    action = params.get('modif')
+    Promise.all([fetch('../api/matieres.php').then((res) => res.json()), fetch('../api/session_id.php').then((res) => res.json())])
+        .then(([datasMatieresFetch, datasSessionFetch]) => {
+            // ---- Données matières.php ----
+            console.log(datasMatieresFetch)
+            datasMatieres = datasMatieresFetch.matieres
+            datasDegressif = datasMatieresFetch.degressif
+            datasFrais = datasMatieresFetch.frais
+            datasLamination = datasMatieresFetch.laminations
+            console.log('datasLamination : ', datasLamination)
+            datasDecoupe = datasMatieresFetch.decoupe
+
             globalPrixDecoupe = parseFloat(datasDecoupe[0].prix_decoupe)
             spanPrixDecoupe.innerHTML = globalPrixDecoupe
+
             fraisLancement = parseFloat(datasFrais[0].prix_frais)
             spanFraisFixe.innerHTML = `${fraisLancement}€`
-            datasDegressif.sort((a, b) => a.min - b.min)
-            // Trie alphabétique par nom_matiere
-            datasMatieres.sort((a, b) => {
-                return a.nom_matiere.localeCompare(b.nom_matiere)
-            })
-            //Appel de fonction
-            addSelectMatiereType(datasMatieres)
-        })
-        .catch((error) => console.error('Erreur lors du chargement des données : ', error))
 
-    //Récupération d'un ID généré et des infos de session
-    fetch('../api/session_id.php')
-        .then((response) => response.json())
-        .then((datasFetch) => {
-            session = datasFetch.user
+            datasDegressif.sort((a, b) => a.min - b.min)
+            datasMatieres.sort((a, b) => a.nom_matiere.localeCompare(b.nom_matiere))
+            datasLamination.sort((a, b) => a.description.localeCompare(b.description))
+
+            addSelectMatiereType(datasMatieres)
+            addSelectLamination(datasLamination)
+
+            // ---- Données session_id.php ----
+            session = datasSessionFetch.user
             console.log('user : ', session)
-            idData = datasFetch.new_id
+
+            idData = datasSessionFetch.new_id
             console.log('idData : ', idData)
+
+            devisLoaded.then(() => {
+                // Traitement du devis si duplication ou modification
+                if (idDevis) {
+                    console.log('datas devis : ', datasDevisMat)
+                    remplirCalculDevis()
+                }
+            })
         })
-        .catch((error) => console.error('Erreur lors du chargement des données :', error))
+        .catch((error) => {
+            console.error('Erreur lors du chargement des données :', error)
+        })
 })
 
 //Query Selector pour tous les inputs
@@ -54,64 +72,63 @@ const spanCoutTotal = document.querySelector('.total_cout_matiere')
 
 const btnCalcul = document.querySelector('.button-calcul-matieres')
 btnCalcul.addEventListener('click', () => {
-    inputNom.value = ''
+    console.log('designations : ', getDatasDesignations())
+    inputNom.disabled = true
+    spanCoutTotal.innerHTML = ''
+    if (!verifDesignations(getDatasDesignations())) return
     resultats = updateCalcul(
         fraisLancement,
         datasMatieres,
         datasDegressif,
-        largeur_value,
-        longueur_value,
-        quantite_value,
-        selectMatiere_value,
+        largeur.value,
+        longueur.value,
+        quantite.value,
+        selectMatiere.value,
         checkDecoupe_value,
-        espacePose_value
+        espacePose.value,
+        selectLamination.value,
+        getTotalPrixDesignation()
     )
     console.log('inversion : ', resultats[0])
     spanCoutTotal.innerHTML = resultats[1]
 })
 
 const largeur = document.querySelector('.input-largeur')
-var largeur_value = largeur.value
 largeur.addEventListener('input', () => {
-    largeur_value = largeur.value
     btnValidation.disabled = true
     inputNom.disabled = true
 })
 
 const longueur = document.querySelector('.input-longueur')
-var longueur_value = longueur.value
 longueur.addEventListener('input', () => {
-    longueur_value = longueur.value
     btnValidation.disabled = true
     inputNom.disabled = true
 })
 
 const quantite = document.querySelector('.input-qte')
-var quantite_value = quantite.value
 quantite.addEventListener('input', () => {
-    quantite_value = quantite.value
     btnValidation.disabled = true
     inputNom.disabled = true
 })
 
 const selectMatiere = document.querySelector('.select-matiere')
-var selectMatiere_value = selectMatiere.value
 selectMatiere.addEventListener('change', () => {
-    selectMatiere_value = selectMatiere.value
+    btnValidation.disabled = true
+    inputNom.disabled = true
+})
+
+const selectLamination = document.querySelector('.select-lamination')
+selectLamination.addEventListener('change', () => {
     btnValidation.disabled = true
     inputNom.disabled = true
 })
 
 const espacePose = document.querySelector('.input-espace')
-var espacePose_value = espacePose.value
 espacePose.addEventListener('input', () => {
     btnValidation.disabled = true
     inputNom.disabled = true
     if (espacePose.value === '') {
         espacePose.value = 0
-        espacePose_value = 0
-    } else {
-        espacePose_value = espacePose.value
     }
 })
 
@@ -144,16 +161,16 @@ const btnValidation = document.querySelector('.btnValiderDevis')
 btnValidation.disabled = true
 btnValidation.addEventListener('click', () => {
     PopupValiderEnregistrement(
-        datasMatieres,
         idData,
         resultats[0],
         nom_value,
-        longueur_value,
-        largeur_value,
-        quantite_value,
-        selectMatiere_value,
-        espacePose_value,
+        longueur.value,
+        largeur.value,
+        quantite.value,
+        selectMatiere.value,
+        espacePose.value,
         checkDecoupe_value,
+        selectLamination.value,
         resultats[1],
         getIdClient()
     )
@@ -176,17 +193,21 @@ function addSelectMatiereType(datasMatieres) {
         //Selecteur pour le type de matiere
         const option = document.createElement('option')
         option.value = matiere.Id_matiere
-        option.innerHTML =
-            matiere.nom_matiere +
-            ' ' +
-            matiere.code_matiere +
-            ' ( Prix m² : ' +
-            matiere.prix_mcarre +
-            '€ / Type : ' +
-            matiere.type_matiere +
-            ', Laize : ' +
-            matiere.laizes +
-            ')'
+        option.innerHTML = `${matiere.nom_matiere} - ${matiere.laizes}cm (${matiere.prix_mcarre}€/m²)`
+        select_type.appendChild(option)
+    })
+}
+
+//Ajoute dynamiquement les types de lamination dans le select
+function addSelectLamination(datasLamination) {
+    //On récupère les types de matiere
+    const select_type = document.querySelector('.select-lamination')
+    datasLamination.forEach((lamination) => {
+        //On les insère dans la balise select
+        //Selecteur pour le type de lamination
+        const option = document.createElement('option')
+        option.value = lamination.Id_lamination
+        option.innerHTML = lamination.description + ' ( Prix m² : ' + lamination.prix_lamination + ')'
         select_type.appendChild(option)
     })
 }
@@ -221,7 +242,19 @@ function getCoefDegressif(datasDegressif, surface) {
     return null
 }
 
-function updateCalcul(fraisLancement, datasMatieres, datasDegressif, largeur, longueur, quantite, id_matiere, selectDecoupe, espacePose) {
+function updateCalcul(
+    fraisLancement,
+    datasMatieres,
+    datasDegressif,
+    largeur,
+    longueur,
+    quantite,
+    id_matiere,
+    selectDecoupe,
+    espacePose,
+    lamination,
+    prix_designations
+) {
     console.log('------------------- CALCUL NORMAL -------------------------------')
     const cout1 = calculFrais(
         fraisLancement,
@@ -232,7 +265,9 @@ function updateCalcul(fraisLancement, datasMatieres, datasDegressif, largeur, lo
         quantite,
         id_matiere,
         selectDecoupe,
-        espacePose
+        espacePose,
+        lamination,
+        prix_designations
     )
     console.log('------------------- CALCUL INVERSE LONGUEUR LARGEUR-------------------------------')
     const cout2 = calculFrais(
@@ -244,7 +279,9 @@ function updateCalcul(fraisLancement, datasMatieres, datasDegressif, largeur, lo
         quantite,
         id_matiere,
         selectDecoupe,
-        espacePose
+        espacePose,
+        lamination,
+        prix_designations
     )
     if (cout1 === null && cout2 === null) {
         console.log('DIMENSIONS INCORRECTES POUR LES DEUX')
@@ -270,7 +307,19 @@ function updateCalcul(fraisLancement, datasMatieres, datasDegressif, largeur, lo
     return cout1 <= cout2 ? ['normal', `${cout1}€`] : ['inversé', `${cout2}€`]
 }
 
-function calculFrais(fraisLancement, datasMatieres, datasDegressif, largeur, longueur, quantite, id_matiere, selectDecoupe, espacePose) {
+function calculFrais(
+    fraisLancement,
+    datasMatieres,
+    datasDegressif,
+    largeur,
+    longueur,
+    quantite,
+    id_matiere,
+    selectDecoupe,
+    espacePose,
+    laminationId,
+    prix_designations
+) {
     if (!largeur || !longueur) {
         console.log('Veuillez renseigner les dimensions')
         return null
@@ -338,14 +387,25 @@ function calculFrais(fraisLancement, datasMatieres, datasDegressif, largeur, lon
         : console.log('Pas de découpe')
     const prixDecoupe = selectDecoupe === true ? surfacePieceTotale * globalPrixDecoupe : 0
 
+    // Prix lamination (selon la surface totale utilisée, pertes comprises)
+    let prix_lamination = 0
+    if (parseInt(laminationId) !== -1) {
+        const lamination = datasLamination.find((l) => l.Id_lamination === parseInt(laminationId))
+        if (!lamination) return 'Lamination introuvable.'
+        prix_lamination = surfaceTotale * lamination.prix_lamination
+    }
+    console.log('Montant lamination : ', prix_lamination)
+
     // Coût matière
     console.log('Cout Matiere = prixDegressif * surfaceTotale * prixMcarre')
     console.log(`Calcul cout matiere : ${prixDegressif} * ${surfaceTotale} * ${prixMcarre}`)
     const coutMatiere = prixDegressif * surfaceTotale * prixMcarre
 
-    const coutTotal = (fraisLancement + coutMatiere + prixDecoupe).toFixed(2)
+    const coutTotal = (fraisLancement + coutMatiere + prixDecoupe + prix_lamination + prix_designations).toFixed(2)
 
-    console.log(`${fraisLancement} + ${coutMatiere.toFixed(2)} + ${prixDecoupe.toFixed(2)}`)
+    console.log(
+        `${fraisLancement} + ${coutMatiere.toFixed(2)} + ${prixDecoupe.toFixed(2)} + ${prix_lamination.toFixed(2)} + ${prix_designations}`
+    )
     console.log('nb bandes : ', nbBandes)
     console.log('check Découpe : ', selectDecoupe)
     console.log(`Coef dégressif : ${prixDegressif}`)
@@ -357,7 +417,6 @@ function calculFrais(fraisLancement, datasMatieres, datasDegressif, largeur, lon
 }
 
 function PopupValiderEnregistrement(
-    datasMatieres,
     id,
     verification,
     nom,
@@ -367,47 +426,151 @@ function PopupValiderEnregistrement(
     idMatiere,
     espace_pose,
     selectDecoupe,
+    lamination,
     prix,
     idClient
 ) {
     if (session !== null) {
-        const item = datasMatieres.find((mat) => mat.Id_matiere === parseInt(idMatiere))?.nom_matiere
         const decoupe = selectDecoupe === true ? 'Oui' : 'Non'
-        console.log(id)
-        console.log(longueur)
-        console.log(largeur)
-        console.log(quantite)
-        console.log(item)
-        console.log(espace_pose)
-        console.log(decoupe)
-        console.log(prix)
-        console.log(idClient)
-        const confirmation = confirm('Voulez-vous enregistrer ce devis ? ')
-        if (parseInt(idClient) === -1) {
-            id = id.replace('ID', 'Simulation_')
-        }
-        if (confirmation) {
-            const params = new URLSearchParams({
-                nom: nom === '' ? id : nom,
-                longueur: verification === 'normal' ? longueur : largeur,
-                largeur: verification === 'normal' ? largeur : longueur,
-                quantite: quantite,
-                item: item,
-                espace_pose: espace_pose,
-                decoupe: decoupe,
-                prix: prix,
-                idClient: idClient,
-            })
+        const params = new URLSearchParams({
+            nom: nom === '' ? id : nom,
+            longueur: verification === 'normal' ? longueur : largeur,
+            largeur: verification === 'normal' ? largeur : longueur,
+            quantite,
+            item: idMatiere,
+            espace_pose,
+            decoupe,
+            prix,
+            idClient,
+            designations: JSON.stringify(getDatasDesignations()),
+            lamination,
+        })
 
-            const url = `../app/app.php?action=add_matiere_data&${params.toString()}`
-            window.location.href = url
+        if (action === 'modif') {
+            // *********************** Modif d'un devis
+            params.append('idD', idDevis)
+            console.log('URL:', '../app/app.php?action=modif_devis_mat')
+            console.log('Body:', params.toString())
+            fetch('../app/app.php?action=modif_devis_mat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params.toString(),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data)
+                    if (data.status === 'success') {
+                        const demandeVoirDevisModif = confirm('Votre devis a été modifié. Voulez-vous le visualiser ?')
+                        if (demandeVoirDevisModif) {
+                            const url = `../app/app.php?action=devis_visualisation&id=${encodeURIComponent(idDevis)}`
+                            window.open(url, '_blank')
+                        } else {
+                            window.location.href = '../app/app.php?action=calcul_impression'
+                        }
+                    } else {
+                        alert(data.message)
+                    }
+                })
+                .catch((e) => {
+                    alert("Une erreur s'est produite, veuillez réessayer.")
+                    console.log(e)
+                })
+        } else if (action === 'copy') {
+            // ********************** Copy d'un devis
+            fetch('../app/app.php?action=copy_devis_mat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params.toString(),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.status === 'success') {
+                        const newIdDevis = parseInt(data.idDevis)
+                        const demandeVoirDevisModif = confirm('Votre devis a été copié. Voulez-vous le visualiser ?')
+                        if (demandeVoirDevisModif) {
+                            const url = `../app/app.php?action=devis_visualisation&id=${encodeURIComponent(newIdDevis)}`
+                            window.open(url, '_blank')
+                        } else {
+                            window.location.href = '../app/app.php?action=calcul_impression'
+                        }
+                    } else {
+                        alert(data.message)
+                    }
+                })
+                .catch((e) => {
+                    alert("Une erreur s'est produite, veuillez réessayer.")
+                    console.log(e)
+                })
+        } else {
+            // ****************** Cas d'ajout normal
+            const confirmation = confirm('Voulez-vous enregistrer ce devis ?')
+            if (parseInt(idClient) === -1) {
+                id = 'Simulation_' + id
+            }
+            if (confirmation) {
+                fetch('../app/app.php?action=add_matiere_data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: params.toString(),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.status === 'success') {
+                            const idDevis = parseInt(data.idDevis)
+                            console.log(data)
+                            const demandeVoirDevis = confirm('Votre devis a été enregistré. Voulez-vous le visualiser ?')
+                            if (demandeVoirDevis) {
+                                const url = `../app/app.php?action=devis_visualisation&id=${encodeURIComponent(idDevis)}`
+                                window.open(url, '_blank')
+                            } else {
+                                window.location.href = '../app/app.php?action=calcul_matiere'
+                            }
+                        } else {
+                            alert(data.message)
+                        }
+                    })
+                    .catch((error) => {
+                        console.log(error)
+                        alert("Une erreur s'est produite, veuillez réessayer.")
+                    })
+            }
         }
     } else {
         const confirmation = confirm(
-            'Vous devez être connecté pour pouvoir bénéficier de cette fonctionnalité. Appuyer sur "OK" pour afficher le formulaire de connexion. '
+            'Vous devez être connecté pour pouvoir bénéficier de cette fonctionnalité. Appuyez sur "OK" pour afficher le formulaire de connexion.'
         )
         if (confirmation) {
             window.location.href = '../app/login.php'
         }
     }
+}
+
+//Si l'utilisateur modifie son devis ou le duplique, on recharge les infos en fonction
+function remplirCalculDevis() {
+    largeur.value = datasDevisMat.largeur ?? ''
+    longueur.value = datasDevisMat.longueur ?? ''
+    quantite.value = datasDevisMat.quantite
+    selectLamination.value = datasDevisMat.Id_lamination
+    selectMatiere.value = datasDevisMat.Id_matiere
+    selectMatiere.selected = selectMatiere.value
+    espacePose.value = datasDevisMat.espace_pose
+    if (datasDevisMat.decoupe === 'Oui') {
+        checkDecoupe.checked = true
+        checkDecoupe.value = true
+        checkDecoupe_value = true
+    } else {
+        checkDecoupe.checked = false
+        checkDecoupe.value = false
+        checkDecoupe_value = false
+    }
+    if (action === 'modif') {
+        btnCalcul.value = 'Refaire le calcul'
+        inputNom.value = datasDevisMat.enregistrement_nom
+        btnValidation.innerHTML = 'Modifier le devis'
+    }
+
+    spanCoutTotal.innerHTML = `${datasDevisMat.prix}€`
+    resultats[1] = datasDevisMat.prix
+    inputNom.disabled = false
+    btnValidation.disabled = false
 }

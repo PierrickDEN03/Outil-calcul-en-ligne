@@ -36,8 +36,8 @@ class AccesClients {
     }
 
 
-    public function modifClient($id,$nomPrenom,$mail,$telephone,$entreprise,$priorite,$fixe){
-        $res=$this->pdo->prepare("UPDATE clients SET nom_prenom=:nom, mail=:mail, telephone=:tel, entreprise_Id=:entreprise, priorite=:priorite, fixe=:fixe WHERE Id_client=:id");
+    public function modifClient($id,$nomPrenom,$mail,$telephone,$entreprise,$priorite,$fixe,$idAdresse){
+        $res=$this->pdo->prepare("UPDATE clients SET nom_prenom=:nom, mail=:mail, telephone=:tel, entreprise_Id=:entreprise, priorite=:priorite, fixe=:fixe, adresse_Id=:idA WHERE Id_client=:id");
         $res->bindParam(":nom",$nomPrenom);
         $res->bindParam(":mail",$mail);
         $res->bindParam(":tel",$telephone);
@@ -45,6 +45,7 @@ class AccesClients {
         $res->bindParam(":id",$id);
         $res->bindParam(":priorite",$priorite);
         $res->bindParam(":fixe",$fixe);
+        $res->bindParam(":idA",$idAdresse);
         $res->execute();
     }
 
@@ -149,14 +150,15 @@ class AccesClients {
     }
 
 
-    public function addClient($nomPrenom,$mail,$telephone,$fixe,$entreprise,$priorite){
-        $res=$this->pdo->prepare("INSERT INTO `clients` (`nom_prenom`, `mail`, `telephone`, `entreprise_id`, `priorite`, `fixe`) VALUES (:nom, :mail, :tel, :entreprise, :priorite, :fixe);");
+    public function addClient($nomPrenom,$mail,$telephone,$fixe,$entreprise,$priorite,$idAdresse){
+        $res=$this->pdo->prepare("INSERT INTO `clients` (`nom_prenom`, `mail`, `telephone`, `entreprise_id`, `priorite`, `fixe`, `adresse_id`) VALUES (:nom, :mail, :tel, :entreprise, :priorite, :fixe, :idA);");
         $res->bindParam(":nom",$nomPrenom);
         $res->bindParam(":mail",$mail);
         $res->bindParam(":tel",$telephone);
         $res->bindParam(":entreprise",$entreprise);
         $res->bindParam(":priorite",$priorite);
         $res->bindParam(":fixe",$fixe);
+        $res->bindParam(":idA",$idAdresse);
         $res->execute();
     }
 }

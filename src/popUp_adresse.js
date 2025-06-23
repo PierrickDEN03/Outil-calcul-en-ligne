@@ -24,7 +24,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 maxPrioriteAdresse = 0 // Valeur par défaut si le tableau est vide
             }
 
-            console.log('popUP priorite adresse : ', maxPrioriteAdresse)
             inputPrioriteAdresse.max = maxPrioriteAdresse
         })
         .catch((error) => console.error('Erreur lors du chargement des données :', error))

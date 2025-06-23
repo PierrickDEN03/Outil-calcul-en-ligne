@@ -169,9 +169,7 @@ input[type='submit']:hover {
 .form-row > .btnValiderDevis,
 .form-row > .button-voir-matiere,
 .button-voir-impressions {
-    width: 48%;
     margin-top: 10px;
-    margin-right: 4%;
     display: inline-block;
     box-sizing: border-box;
 }

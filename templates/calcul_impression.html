@@ -39,6 +39,13 @@
                         <select name="type_papier" class="select_type_papier">
                             <option value="null">------</option>
                         </select>
+                        <button
+                            type="button"
+                            class="button-voir-impressions"
+                            onclick="window.open('../app/app.php?action=voir_impression')"
+                        >
+                            Voir les données
+                        </button>
                     </div>
                     <div class="form-row">
                         <label for="cote_impression">Choix de l'impression</label>
@@ -46,6 +53,25 @@
                             <option value="recto">Recto uniquement</option>
                             <option value="recto-verso">Recto - Verso</option>
                         </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="check-pliage"
+                            >Option pliage simple (<span class="prix_pliage"></span>€/unite, frais de lancement :
+                            <span class="frais_pliage"></span>€)</label
+                        >
+                        <input type="checkbox" class="check-pliage" name="check-pliage" value="false" />
+                    </div>
+                    <div>
+                        <div class="form-row">
+                            <label for="designationBtn">Complément(s) : </label>
+                            <button name="designationBtn" class="designationBtn">Ajouter +</button>
+                        </div>
+                        <!-- Désignations gérés via JS -->
+                        <div class="designation-row"></div>
+                    </div>
+                    <div class="form-row">
+                        <label for="frais_fixe">Frais fixe : </label>
+                        <span class="fraix_fixe"></span>
                     </div>
                     <div class="form-row">
                         <input type="button" class="button-calcul-impressions" value="Faire le calcul" />
@@ -73,13 +99,6 @@
                     </div>
                     <div class="form-row">
                         <button type="button" class="btnValiderDevis">Enregistrer le devis</button>
-                        <button
-                            type="button"
-                            class="button-voir-impressions"
-                            onclick="window.open('../app/app.php?action=voir_impression')"
-                        >
-                            Voir les données
-                        </button>
                     </div>
                 </div>
             </div>
@@ -87,5 +106,6 @@
 
         <script type="module" src="../src/gestion_entreprise.js"></script>
         <script type="module" src="../src/impressions.js"></script>
+        <script type="module" src="../src/designations.js"></script>
     </body>
 </html>

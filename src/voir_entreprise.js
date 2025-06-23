@@ -119,7 +119,7 @@ function addTabEntreprises(datasEntreprises, datasAdressesPrincipales, tabEntrep
             const isValid = nom && rue && code_postal && ville
 
             if (isValid) {
-                const url = `../app/app.php?action=modif_entreprise_nom&idE=${entreprise.Id_entreprise}&nom=${encodeURIComponent(
+                const url = `../app/app.php?action=modif_entreprise&idE=${entreprise.Id_entreprise}&nom=${encodeURIComponent(
                     nom
                 )}&rue=${encodeURIComponent(rue)}&cp=${code_postal}&ville=${encodeURIComponent(ville)}&idA=${encodeURIComponent(
                     adresse.Id_adresse

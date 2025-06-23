@@ -132,6 +132,11 @@
             exit();
         }
 
+        public function voirPDF($id){
+            header("Location: ../templates/data_visualisation.html?id=$id");
+            exit();
+        }
+
         public function moteur($acc_datasImpr,$acc_datasMatiere, $acc_datasEnr,$acc_client,$acc_entreprise, $acc_adresses){
             if (isset($_GET["action"])){
                 $action=$_GET["action"];
@@ -290,10 +295,42 @@
                         }
                     }catch(Exception $e){
                         $this->voirImpression();
-                    }   
-                             
+                    }         
                 break;
-
+            case "modif_frais_impr" : 
+                if(!empty($_SESSION)){
+                        try{
+                            if(!empty($_GET["id"]) && !empty($_GET["frais"])){
+                                $acc_datasImpr->modifFrais($_GET["id"],$_GET["frais"]);
+                                $this->modifEffectueeImpr();
+                            }else{
+                                $this->voirImpression();
+                            }
+                        }catch(Exception $e){
+                            echo$e;
+                            $this->voirImpression();
+                        }       
+                    }else{
+                        header("Location:./login.php");
+                    }    
+                break;
+            case "modif_infos_pliage" : 
+                if(!empty($_SESSION)){
+                        try{
+                            if(!empty($_GET["id"]) && !empty($_GET["frais"]) && !empty($_GET["prixPliage"])){
+                                $acc_datasImpr->modifPliage($_GET["id"],$_GET["frais"],$_GET["prixPliage"]);
+                                $this->modifEffectueeImpr();
+                            }else{
+                                $this->voirImpression();
+                            }
+                        }catch(Exception $e){
+                            echo$e;
+                            $this->voirImpression();
+                        }       
+                    }else{
+                        header("Location:./login.php");
+                    }    
+                break;
             /* *************************POUR LES MATIERES ***************************************** */
             case "modif_decoupe" : 
                 if(!empty($_SESSION)){
@@ -321,6 +358,7 @@
                                 $this->voirMatiere();
                             }
                         }catch(Exception $e){
+                            echo$e;
                             $this->voirMatiere();
                         }       
                     }else{
@@ -424,25 +462,94 @@
                         }
                     }catch(Exception $e){
                         $this->voirMatiere();
-                    }  
-
-                             
+                    }           
+                break;
+                case "add_lamination" : 
+                    if(!empty($_SESSION)){
+                            try{
+                                if(!empty($_GET["prixL"]) && !empty($_GET["descriptionL"])){
+                                    $acc_datasMatiere->addLamination($_GET["descriptionL"],$_GET["prixL"]);
+                                    $this->ajoutEffectueeMatiere();
+                                }else{
+                                    $this->voirMatiere();
+                                }
+                            }catch(Exception $e){
+                                echo$e;
+                                $this->voirMatiere();
+                            }       
+                        }else{
+                            header("Location:./login.php");
+                        }    
+                break;
+                case "modif_lamination" : 
+                    if(!empty($_SESSION)){
+                            try{
+                                if(!empty($_GET["prixL"]) && !empty($_GET["descriptionL"]) && !empty($_GET["idL"])){
+                                    $acc_datasMatiere->modifLamination($_GET["idL"],$_GET["descriptionL"],$_GET["prixL"]);
+                                    $this->modifEffectueeMat();
+                                }else{
+                                    $this->voirMatiere();
+                                }
+                            }catch(Exception $e){
+                                echo$e;
+                                $this->voirMatiere();
+                            }       
+                        }else{
+                            header("Location:./login.php");
+                        }    
+                break;
+                case "suppr_lamination" : 
+                    if(!empty($_SESSION)){
+                            try{
+                                if(!empty($_GET["idL"])){
+                                    $acc_datasMatiere->supprimerLamination($_GET["idL"]);
+                                    $this->suprEffectueeMat();
+                                }else{
+                                    $this->voirMatiere();
+                                }
+                            }catch(Exception $e){
+                                echo$e;
+                                $this->voirMatiere();
+                            }       
+                        }else{
+                            header("Location:./login.php");
+                        }    
                 break;
             /* ************************* POUR LES DATAS ***************************************** */
             //On rajoute des données à partir des impressions (feuilles)
             case "add_impr_data" : 
                 if(!empty($_SESSION)){
-                   //../app/app.php?action=add_impr_data&nom=Simulation_041&format=A6&nbImpression=3&item=Test+135g&recto=Recto&prix=5.00%E2%82%AC&idClient=-1
                         try{
-                            if((!empty($_GET["nom"])) && !empty($_GET["format"]) && (!empty($_GET["nbImpression"])) && (!empty($_GET["item"]) && (!empty($_GET["recto"]))) && (!empty($_GET["prix"])) && (!empty($_GET["idClient"]))){
+                            if((!empty($_POST["nom"])) && !empty($_POST["format"]) && (!empty($_POST["nbImpression"])) && (!empty($_POST["item"]) && (!empty($_POST["recto"]))) && (!empty($_POST["prix"])) && (!empty($_POST["pliage"])) && (!empty($_POST["idClient"])) && isset($_POST["designations"])){
                                 $date = date('Y-m-d');
-                                $acc_datasEnr->addDatas($_GET["nom"],$date,"Feuille",$_GET["nbImpression"],$_GET["prix"],"","",$_GET["item"],"","",$_GET["format"],$_GET["recto"], $_GET["idClient"]);
-                                header("Location:./app.php?action=calcul_impression");
+                                if($acc_datasEnr->verifNom($_POST["nom"]) === true){
+                                    echo json_encode([
+                                        'status' => 'error',
+                                        'message' => 'Le devis "' . $_POST["nom"] . '" existe déjà, veuillez choisir un autre nom de devis',
+                                    ]);
+                                    exit;
+                                }
+                                $acc_datasEnr->addDatas($_POST["nom"],$date,"Feuille",$_POST["nbImpression"],$_POST["prix"],"","",-1,$_POST["item"],"","",$_POST["format"],$_POST["recto"], $_POST["pliage"], $_POST["idClient"],$_POST["designations"],-1);
+                                $idDevis = $acc_datasEnr->getLastId();
+                                echo json_encode([
+                                    'status' => 'success',
+                                    'message' => 'Données enregistrées avec succès.',
+                                    'idDevis' => $idDevis
+                                ]);
+                                exit;
                             }else{
-                                header("Location:./app.php?action=calcul_impression");
+                                echo json_encode([
+                                    'status' => 'error',
+                                    'message' => 'Certains champs sont manquants.'
+                                ]);
+                                exit;
                             }
                         }catch(Exception $e){
-                            header("Location:./app.php?action=calcul_impression");
+                            echo json_encode([
+                                    'status' => 'error',
+                                    'message' => $e
+                                ]);
+                            exit;
                         }       
                     }else{
                         header("Location:./login.php");
@@ -451,16 +558,36 @@
             case "add_matiere_data" :
                 if(!empty($_SESSION)){
                         try{
-                            if((!empty($_GET["nom"])) && !empty($_GET["longueur"]) && (!empty($_GET["largeur"])) && (!empty($_GET["quantite"])) && (!empty($_GET["item"])) && (isset($_GET["espace_pose"])) && (!empty($_GET["decoupe"])) && (!empty($_GET["prix"])) && (!empty($_GET["idClient"]))){
+                            if((!empty($_POST["nom"])) && !empty($_POST["longueur"]) && (!empty($_POST["largeur"])) && (!empty($_POST["quantite"])) && (!empty($_POST["item"])) && (isset($_POST["espace_pose"])) && (!empty($_POST["decoupe"])) && (!empty($_POST["prix"])) && (!empty($_POST["idClient"])) && isset($_POST["designations"]) && isset($_POST["lamination"])){
                                 $date = date('Y-m-d');
-                                $acc_datasEnr->addDatas($_GET["nom"],$date,"Matière",$_GET["quantite"],$_GET["prix"],$_GET["longueur"],$_GET["largeur"],$_GET["item"],$_GET["espace_pose"],$_GET["decoupe"],"","",$_GET["idClient"]);
-                                header("Location:./app.php?action=calcul_matiere");
+                                if($acc_datasEnr->verifNom($_POST["nom"]) === true){
+                                    echo json_encode([
+                                        'status' => 'error',
+                                        'message' => 'Le devis "' . $_POST["nom"] . '" existe déjà, veuillez choisir un autre nom de devis',
+                                    ]);
+                                    exit;
+                                }
+                                $acc_datasEnr->addDatas($_POST["nom"],$date,"Matière",$_POST["quantite"],$_POST["prix"],$_POST["longueur"],$_POST["largeur"],$_POST["item"],-1,$_POST["espace_pose"],$_POST["decoupe"],"","","",$_POST["idClient"],$_POST["designations"],$_POST["lamination"]);
+                                $idDevis = $acc_datasEnr->getLastId();
+                                echo json_encode([
+                                    'status' => 'success',
+                                    'message' => 'Données enregistrées avec succès.',
+                                    'idDevis' => $idDevis
+                                ]);
+                                exit;
                             }else{
-                                $this->modifEffectueeDatas();
-                                header("Location:./app.php?action=calcul_matiere");
+                                echo json_encode([
+                                    'status' => 'error',
+                                    'message' => 'Certains champs sont manquants.'
+                                ]);
+                                exit;
                             }
                         }catch(Exception $e){
-                            header("Location:./app.php?action=calcul_matiere");
+                            echo json_encode([
+                                    'status' => 'error',
+                                    'message' => $e
+                                ]);
+                            exit;
                         }       
                     }else{
                         header("Location:./login.php");
@@ -499,59 +626,25 @@
                         header("Location:./login.php");
                     } 
                 break;
-            /* ************************* POUR LES CLIENTS (DETAILS ENTREPRISES) ***************************************** */
-           /* case "modif_client" : 
-                    if(!empty($_SESSION)){
-                        try{
-                            if(!empty($_GET["id"]) && (!empty($_GET["nom"])) && (!empty($_GET["mail"])) && (!empty($_GET["mail"])) && (!empty($_GET["tel"])) && (!empty($_GET["entreprise"])) && (!empty($_GET["priorite"]))){
-                                $acc_client->modifClient($_GET["id"],$_GET["nom"],$_GET["mail"],$_GET["tel"],intval($_GET['entreprise']), intval($_GET['priorite']));
-                                $this->modifEffectueeClient();
-                            }else{
-                                $this->voirDetails();
-                            }
-                        }catch(Exception $e){
-                            $this->voirDetails();
-                        }       
-                    }else{
-                        header("Location:./login.php");
-                    }   
-                break; 
-            case "add_client" : 
-                    if(!empty($_SESSION)){
-                        try{
-                            if(!empty($_GET["nom"]) && !empty($_GET["mail"]) && !empty($_GET["tel"]) && !empty($_GET["entreprise"]) && (!empty($_GET["priorite"]))){
-                                $acc_client->addClient($_GET["nom"],$_GET["mail"],$_GET["tel"],$_GET["entreprise"], intval($_GET['priorite']));
-                                $this->ajoutEffectueeClient();
-                            }else{
-                                $this->voirDetails();
-                            }
-                        }catch(Exception $e){
-                            $this->voirDetails();
-                        }       
-                    }else{
-                        header("Location:./login.php");
-                    }   
-                break;
-            case "suppr_client" :
+                case "devis_visualisation" :
                     if(!empty($_SESSION)){
                         try{
                             if (isset($_GET['id'])) {
                                 $id = intval($_GET['id']);
-                                $acc_client->supprimerClient($_GET["id"]);
-                                $this->suprEffectueeClient();
+                                $this->voirPDF($id);
                             }else{
-                                $this->voirDetails();
+                                $this->voirDatas();
                             }
                         }catch(Exception $e){
-                            $this->voirDetails();
+                            $this->voirDatas();
                         }
                     }else{
                         header("Location:./login.php");
                     } 
                 break;
-*/
+                
             /* ************************* POUR LES ENTREPRISES ***************************************** */
-            case "modif_entreprise_nom" : 
+            case "modif_entreprise" : 
                     if(!empty($_SESSION)){
                         try{
                             if(!empty($_GET["idE"]) && (!empty($_GET["nom"])) && (!empty($_GET["rue"])) && (!empty($_GET["cp"])) && (!empty($_GET["ville"])) && (!empty($_GET["idA"]))){
@@ -586,36 +679,20 @@
                         header("Location:./login.php");
                     } 
                 break;
-            /*case "add_entreprise" : 
-                    if(!empty($_SESSION)){
-                        try{
-                            //A REFLECHIR
-                            if(!empty($_GET["nom"]) && !empty($_GET["mail"]) && !empty($_GET["telephone"]) && !empty($_GET["siret"]) && !empty($_GET["rue"]) && !empty($_GET["cp"]) && !empty($_GET["ville"])){
-                                $acc_entreprise->addEntreprise($_GET["nom"],$_GET["mail"],$_GET["telephone"],$_GET["siret"]);
-                                $this->ajoutEffectueeEntreprise();
-                            }else{
-                                $this->voirEntreprises();
-                            }
-                        }catch(Exception $e){
-                            $this->voirEntreprises();
-                        }       
-                    }else{
-                        header("Location:./login.php");
-                    }   
-                break;
-            */
             case "ajouter_entreprise_client" : 
                     if(!empty($_SESSION)){
                         try{
                             if(!empty($_GET["nomEntreprise"]) && !empty($_GET["siretEntreprise"]) 
-                            && !empty($_GET["mailEntreprise"]) && !empty($_GET["telephoneEntreprise"]) && !empty($_GET["rueEntreprise"]) 
-                            && !empty($_GET["codePostalEntreprise"]) && !empty($_GET["villeEntreprise"]) && !empty($_GET["nomPrenomClient"]) 
-                            && !empty($_GET["mailClient"]) && !empty($_GET["telephoneClient"]) && !empty($_GET["fixeClient"])){
-                                $acc_entreprise->addEntreprise($_GET["nomEntreprise"],$_GET["mailEntreprise"],$_GET["telephoneEntreprise"],$_GET["siretEntreprise"]);
+                            && !empty($_GET["mailEntreprise"]) && isset($_GET["telephoneEntreprise"]) && !empty($_GET["mpaiement"])
+                            && !empty($_GET["rueEntreprise"]) 
+                            && isset($_GET["codePostalEntreprise"]) && !empty($_GET["villeEntreprise"]) && !empty($_GET["nomPrenomClient"]) 
+                            && !empty($_GET["mailClient"]) && isset($_GET["telephoneClient"]) && isset($_GET["fixeClient"])){
+                                $acc_entreprise->addEntreprise($_GET["nomEntreprise"],$_GET["mailEntreprise"],$_GET["telephoneEntreprise"],$_GET["siretEntreprise"], $_GET["mpaiement"]);
                                 //Il faut maintenant récupérer l'id de l'entreprise créée
                                 $idEntreprise=$acc_entreprise->getLastId();
                                 $acc_adresses->addAdresse(1,$_GET["rueEntreprise"],$_GET["codePostalEntreprise"],$_GET["villeEntreprise"],$idEntreprise);
-                                $acc_client->addClient($_GET["nomPrenomClient"],$_GET["mailClient"],$_GET["telephoneClient"],$_GET["telephoneEntreprise"],$idEntreprise,1);
+                                $idAdresse=$acc_adresses->getLastId();
+                                $acc_client->addClient($_GET["nomPrenomClient"],$_GET["mailClient"],$_GET["telephoneClient"],$_GET["fixeClient"],$idEntreprise,1,$idAdresse);
                                 $this->ajoutEffectueeEntreprise();
                             }else{
 
@@ -623,12 +700,30 @@
                             }
                         }catch(Exception $e){
                             echo$e;
-                            //$this->voirEntreprises();
+                            $this->voirEntreprises();
                         }       
                     }else{
                         header("Location:./login.php");
                     }   
-                break;/* ************************* POUR LES DETAILS ENTREPRISES ***************************************** */
+                break;
+            /* ************************* POUR LES DETAILS ENTREPRISES ***************************************** */
+            case "modif_nomE" : 
+                    if(!empty($_SESSION)){
+                        try{
+                            if(!empty($_GET["id"]) && (!empty($_GET["nomE"]))){
+                                $acc_entreprise->modifNom($_GET["id"],$_GET["nomE"]);
+                                $this->retourDetails($_GET["id"]);
+                            }else{
+                                $this->retourDetails($_GET["id"]);
+                            }
+                        }catch(Exception $e){
+                            echo$e;
+                            $this->retourDetails($_GET["id"]);
+                        }       
+                    }else{
+                        header("Location:./login.php");
+                    }   
+                break;
             case "modif_siret" : 
                     if(!empty($_SESSION)){
                         try{
@@ -680,6 +775,23 @@
                         header("Location:./login.php");
                     }   
                 break;
+                case "modif_paiementE" : 
+                    if(!empty($_SESSION)){
+                        try{
+                            if(!empty($_GET["id"]) && (!empty($_GET["mpaiement"]))){
+                                $acc_entreprise->modifModalPaiement($_GET["id"],$_GET["mpaiement"]);
+                                $this->retourDetails($_GET["id"]);
+                            }else{
+                                $this->retourDetails($_GET["id"]);
+                            }
+                        }catch(Exception $e){
+                            echo$e;
+                            $this->retourDetails($_GET["id"]);
+                        }       
+                    }else{
+                        header("Location:./login.php");
+                    }   
+                break;
             case "modif_adresseP" : 
                     if(!empty($_SESSION)){
                         try{
@@ -718,8 +830,8 @@
             case "modif_clientP" : 
                     if(!empty($_SESSION)){
                         try{
-                            if(!empty($_GET["idC"]) && (!empty($_GET["nom"])) && (!empty($_GET["mail"])) && (!empty($_GET["tel"])) && (!empty($_GET["fixe"])) && (!empty($_GET["id"]))){
-                                $acc_client->modifClient($_GET["idC"],$_GET["nom"],$_GET["mail"],$_GET["tel"],$_GET["id"],1, $_GET["fixe"]);
+                            if(!empty($_GET["idC"]) && (!empty($_GET["nom"])) && (!empty($_GET["mail"])) && (!empty($_GET["tel"])) && (!empty($_GET["fixe"])) && (!empty($_GET["idA"])) && (!empty($_GET["id"]))){
+                                $acc_client->modifClient($_GET["idC"],$_GET["nom"],$_GET["mail"],$_GET["tel"],$_GET["id"],1, $_GET["fixe"], $_GET["idA"]);
                                 $this->retourDetails($_GET["id"]);
                             }else{
                                 $this->retourDetails($_GET["id"]);
@@ -735,9 +847,9 @@
             case "modif_clientS" : 
                     if(!empty($_SESSION)){
                         try{
-                            if(!empty($_GET["idC"]) && (!empty($_GET["nom"])) && (!empty($_GET["mail"])) && (!empty($_GET["tel"])) && (!empty($_GET["fixe"])) && (!empty($_GET["id"])) && (!empty($_GET["priorite"]))){
+                            if(!empty($_GET["idC"]) && (!empty($_GET["nom"])) && (!empty($_GET["mail"])) && (!empty($_GET["tel"])) && (!empty($_GET["adresseC"])) && (!empty($_GET["fixe"])) && (!empty($_GET["id"])) && (!empty($_GET["priorite"]))){
                                 $acc_client->decalerPrioriteClient($_GET["idC"], $_GET["priorite"]);
-                                $acc_client->modifClient($_GET["idC"],$_GET["nom"],$_GET["mail"],$_GET["tel"],$_GET["id"],$_GET["priorite"], $_GET["fixe"]);
+                                $acc_client->modifClient($_GET["idC"],$_GET["nom"],$_GET["mail"],$_GET["tel"],$_GET["id"],$_GET["priorite"], $_GET["fixe"], $_GET["adresseC"]);
                                 $this->retourDetails($_GET["id"]);
                             }else{
                                 $this->retourDetails($_GET["id"]);
@@ -792,11 +904,12 @@
             case "ajouter_clientS" : 
                     if(!empty($_SESSION)){
                         try{
-                            if (!empty($_GET["nom"]) && !empty($_GET["mail"]) && !empty($_GET["tel"]) && !empty($_GET["fixe"]) && isset($_GET["priorite"]) && !empty($_GET["id"])) {
+                            if (!empty($_GET["nom"]) && !empty($_GET["mail"]) && !empty($_GET["tel"]) && !empty($_GET["fixe"]) && isset($_GET["priorite"]) && !empty($_GET["adresseC"])&& !empty($_GET["id"])) {
                                 $nom = $_GET["nom"];
                                 $mail = $_GET["mail"];
                                 $tel = $_GET["tel"];
                                 $fixe = $_GET["fixe"];
+                                $idAdresse = $_GET["adresseC"];
                                 $idEntreprise = $_GET["id"];
                                 $prioriteInput = intval($_GET["priorite"]);
 
@@ -808,7 +921,7 @@
                                     $acc_client->incrementerPriorites($idEntreprise, $prioriteInput);
                                     $priorite = $prioriteInput;
                                 }
-                                $acc_client->addClient($nom, $mail, $tel, $fixe, $idEntreprise, $priorite);
+                                $acc_client->addClient($nom, $mail, $tel, $fixe, $idEntreprise, $priorite, $idAdresse);
                                 $this->retourDetails($idEntreprise);
                             }else{
                                 $this->retourDetails($_GET["id"]);
@@ -843,6 +956,190 @@
                         }catch(Exception $e){
                             echo$e;
                             //$this->retourDetails($_GET["id"]);
+                        }       
+                    }else{
+                        header("Location:./login.php");
+                    }   
+                break;
+            case "modif_data_detail" : 
+                    if(!empty($_SESSION)){
+                        try{
+                            $idEntreprise = intval($_GET["id"]);
+                            if(!empty($_GET["idDevis"]) && (!empty($_GET["nom"])) && !empty($_GET["id"])){
+                                $acc_datasEnr->modifDatas($_GET["idDevis"],$_GET["nom"]);
+                                $this->retourDetails($idEntreprise);
+                            }else{
+                                $this->retourDetails($idEntreprise);
+                            }
+                        }catch(Exception $e){
+                            echo$e;
+                            //$this->retourDetails($idEntreprise);
+                        }       
+                    }else{
+                        header("Location:./login.php");
+                    }   
+                break; 
+                case "suppr_data_detail" :
+                    if(!empty($_SESSION)){
+                        try{
+                            $idEntreprise = intval($_GET["id"]);
+                            if (isset($_GET['idDevis']) && isset($_GET['id'])) {
+                                $acc_datasEnr->supprimerDatas($_GET["idDevis"]);
+                                $this->retourDetails($idEntreprise);
+                            }else{
+                                $this->retourDetails($idEntreprise);
+                            }
+                        }catch(Exception $e){
+                            $this->retourDetails($idEntreprise);
+                        }
+                    }else{
+                        header("Location:./login.php");
+                    } 
+                break;
+            /* ************************* POUR LES MODIFS / COPIE DE DEVIS ***************************************** */
+            case "copy_devis_impr" : 
+                    if(!empty($_SESSION)){
+                        try{
+                            if((!empty($_POST["nom"])) && !empty($_POST["format"]) && (!empty($_POST["nbImpression"])) && (!empty($_POST["item"]) && (!empty($_POST["recto"]))) && (!empty($_POST["prix"])) && (!empty($_POST["pliage"])) && (!empty($_POST["idClient"])) && isset($_POST["designations"])){
+                                if($acc_datasEnr->verifNom($_POST["nom"]) === true){
+                                    echo json_encode([
+                                        'status' => 'error',
+                                        'message' => 'Le devis "' . $_POST["nom"] . '" existe déjà, veuillez choisir un autre nom de devis',
+                                    ]);
+                                    exit;
+                                }
+                                $date = date('Y-m-d');
+                                $acc_datasEnr->addDatas($_POST["nom"],$date,"Feuille",$_POST["nbImpression"],$_POST["prix"],"","",-1,$_POST["item"],"","",$_POST["format"],$_POST["recto"], $_POST["pliage"], $_POST["idClient"],$_POST["designations"],-1);
+                                $idDevis = $acc_datasEnr->getLastId();
+                                echo json_encode([
+                                    'status' => 'success',
+                                    'message' => 'Données enregistrées avec succès.',
+                                    'idDevis' => $idDevis
+                                ]);
+                                exit;
+                            }else{
+                                echo json_encode([
+                                    'status' => 'error',
+                                    'message' => 'Certains champs sont manquants.'
+                                ]);
+                                exit;
+                            }
+                        }catch(Exception $e){
+                            echo json_encode([
+                                    'status' => 'error',
+                                    'message' => $e
+                                ]);
+                            exit;
+                        }       
+                    }else{
+                        header("Location:./login.php");
+                    }   
+                break;
+            case "modif_devis_impr" : 
+                    if(!empty($_SESSION)){
+                        try{
+                            if(!empty($_POST["idD"]) && (!empty($_POST["nom"])) && !empty($_POST["format"]) && (!empty($_POST["nbImpression"])) && (!empty($_POST["item"]) && (!empty($_POST["recto"]))) && (!empty($_POST["prix"])) && (!empty($_POST["pliage"])) && (!empty($_POST["idClient"])) && isset($_POST["designations"])){
+                                if($acc_datasEnr->verifNom($_POST["nom"]) === true){
+                                    echo json_encode([
+                                        'status' => 'error',
+                                        'message' => 'Le devis "' . $_POST["nom"] . '" existe déjà, veuillez choisir un autre nom de devis',
+                                    ]);
+                                    exit;
+                                }
+                                $date = date('Y-m-d');
+                                $acc_datasEnr->updateDatas($_POST['idD'], $_POST["nom"],$date,"Feuille",$_POST["nbImpression"],$_POST["prix"],"","",-1,$_POST["item"],"","",$_POST["format"],$_POST["recto"], $_POST["pliage"], $_POST["idClient"],$_POST["designations"],-1);
+                                echo json_encode([
+                                    'status' => 'success',
+                                    'message' => 'Données modifiées avec succès.'
+                                ]);
+                                exit;
+                            }else{
+                                echo json_encode([
+                                    'status' => 'error',
+                                    'message' => 'Certains champs sont manquants.'
+                                ]);
+                                exit;
+                            }
+                        }catch(Exception $e){
+                            echo json_encode([
+                                    'status' => 'error',
+                                    'message' => $e
+                                ]);
+                            exit;
+                        }       
+                    }else{
+                        header("Location:./login.php");
+                    }   
+                break;
+            case "copy_devis_mat" : 
+                    if(!empty($_SESSION)){
+                        try{
+                            if(isset($_POST["nom"]) && isset($_POST["quantite"]) && isset($_POST["prix"]) && isset($_POST["longueur"]) && isset($_POST["largeur"]) && isset($_POST["item"]) && isset($_POST["espace_pose"]) && isset($_POST["decoupe"]) && isset($_POST["idClient"]) && isset($_POST["designations"]) && isset($_POST["lamination"])){
+                                if($acc_datasEnr->verifNom($_POST["nom"]) === true){
+                                    echo json_encode([
+                                        'status' => 'error',
+                                        'message' => 'Le devis "' . $_POST["nom"] . '" existe déjà, veuillez choisir un autre nom de devis',
+                                    ]);
+                                    exit;
+                                }
+                                $date = date('Y-m-d');
+                                $acc_datasEnr->addDatas($_POST["nom"],$date,"Matière",$_POST["quantite"],$_POST["prix"],$_POST["longueur"],$_POST["largeur"],$_POST["item"],-1,$_POST["espace_pose"],$_POST["decoupe"],"","","",$_POST["idClient"],$_POST["designations"],$_POST["lamination"]);
+                                $idDevis = $acc_datasEnr->getLastId();
+                                echo json_encode([
+                                    'status' => 'success',
+                                    'message' => 'Données copiées avec succès.',
+                                    'idDevis' => $idDevis
+                                ]);
+                                exit;
+                            }else{
+                                echo json_encode([
+                                    'status' => 'error',
+                                    'message' => 'Certains champs sont manquants.'
+                                ]);
+                                exit;
+                            }
+                        }catch(Exception $e){
+                            echo json_encode([
+                                    'status' => 'error',
+                                    'message' => $e
+                                ]);
+                            exit;
+                        }       
+                    }else{
+                        header("Location:./login.php");
+                    }   
+                break;
+            case "modif_devis_mat" : 
+                    if(!empty($_SESSION)){
+                        try{
+                            if(isset($_POST["idD"]) && isset($_POST["nom"]) && isset($_POST["quantite"]) && isset($_POST["prix"]) && isset($_POST["longueur"]) && isset($_POST["largeur"]) && isset($_POST["item"]) && isset($_POST["espace_pose"]) && isset($_POST["decoupe"]) && isset($_POST["idClient"]) && isset($_POST["designations"]) && isset($_POST["lamination"])){
+                                if($acc_datasEnr->verifNom($_POST["nom"]) === true){
+                                    echo json_encode([
+                                        'status' => 'error',
+                                        'message' => 'Le devis "' . $_POST["nom"] . '" existe déjà, veuillez choisir un autre nom de devis',
+                                    ]);
+                                    exit;
+                                }
+                                $date = date('Y-m-d');
+                                $acc_datasEnr->updateDatas($_POST['idD'], $_POST["nom"],$date,"Matière",$_POST["quantite"],$_POST["prix"],$_POST["longueur"],$_POST["largeur"],$_POST["item"],-1,$_POST["espace_pose"],$_POST["decoupe"],"","","", $_POST["idClient"],$_POST["designations"],$_POST["lamination"]);
+                                echo json_encode([
+                                    'status' => 'success',
+                                    'message' => 'Données modifiées avec succès.'
+                                ]);
+                                exit;
+                            }else{
+                                echo json_encode([
+                                    'status' => 'error',
+                                    'message' => 'Certains champs sont manquants.'
+                                ]);
+                                exit;
+                            }
+                        }catch(Exception $e){
+                            echo json_encode([
+                                    'status' => 'error',
+                                    'message' => $e
+                                ]);
+                            exit;
                         }       
                     }else{
                         header("Location:./login.php");
