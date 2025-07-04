@@ -13,6 +13,7 @@ var coutTotal = 0
 let idData
 let session
 let fraisFixe
+let papierChoices
 const spanFraisFixe = document.querySelector('.fraix_fixe')
 const spanPrixPliage = document.querySelector('.prix_pliage')
 const spanFraisPliage = document.querySelector('.frais_pliage')
@@ -20,7 +21,7 @@ const selectEntreprise = document.querySelector('.selectEntreprise')
 const selectClient = document.querySelector('.selectClient')
 selectEntreprise.disabled = false
 selectClient.disabled = true
-//Action en fonction de copy ou modif
+//Action modif
 let action
 let idDevis
 //Appel de la base de données
@@ -28,6 +29,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search)
     idDevis = params.get('id')
     action = params.get('modif')
+    console.log('id devis modif : ', idDevis)
 
     // Charger toutes les données nécessaires
     const fetchImpressions = fetch('../api/impressions.php').then((res) => res.json())
@@ -104,6 +106,7 @@ format.addEventListener('change', () => {
     inputNom.disabled = true
     selectEntreprise.disabled = true
     selectClient.disabled = true
+    pourcentageInput.disabled = true
 })
 
 const nbImpression = document.querySelector('.number')
@@ -112,6 +115,7 @@ nbImpression.addEventListener('input', () => {
     inputNom.disabled = true
     selectEntreprise.disabled = true
     selectClient.disabled = true
+    pourcentageInput.disabled = true
 })
 
 const typePapier = document.querySelector('.select_type_papier')
@@ -120,6 +124,7 @@ typePapier.addEventListener('change', () => {
     inputNom.disabled = true
     selectEntreprise.disabled = true
     selectClient.disabled = true
+    pourcentageInput.disabled = true
 })
 
 const selectRecto = document.querySelector('.select_recto_verso')
@@ -130,6 +135,7 @@ selectRecto.addEventListener('change', () => {
     inputNom.disabled = true
     selectEntreprise.disabled = true
     selectClient.disabled = true
+    pourcentageInput.disabled = true
 })
 
 const checkPliage = document.querySelector('.check-pliage')
@@ -137,11 +143,24 @@ var checkPliage_value = checkPliage.value
 checkPliage.addEventListener('change', (e) => {
     btnValidation.disabled = true
     inputNom.disabled = true
+    pourcentageInput.disabled = true
     if (e.target.checked === true) {
         checkPliage_value = true
     } else {
         checkPliage_value = false
     }
+})
+
+const pourcentageInput = document.querySelector('.pourcentageInput')
+pourcentageInput.disabled = true
+pourcentageInput.addEventListener('input', () => {
+    if (isNaN(pourcentageInput.value) || parseFloat(pourcentageInput.value) < 0 || pourcentageInput.value === '') {
+        pourcentageInput.value = 0
+    }
+    coutTotal = spanCoutTotal.textContent.replace('€', '')
+    const pourcentage = 1 + parseInt(pourcentageInput.value) / 100
+    const prix = coutTotal * pourcentage
+    spanCoutTotal.innerHTML = `${prix.toFixed(2)}€`
 })
 
 const btnValidation = document.querySelector('.btnValiderDevis')
@@ -174,7 +193,7 @@ function updateCalcul(datasImpressions, format, nbImpression, typePapier, select
     console.log('--------------------------------------------------')
     //console.log(format)
     //console.log(nbImpression)
-    //console.log(typePapier)
+    console.log('type papier : ', typePapier)
     console.log('recto : ', selectRecto)
     console.log('check pliage : ', check_pliage)
     var nbOnPlanche = 0
@@ -184,7 +203,13 @@ function updateCalcul(datasImpressions, format, nbImpression, typePapier, select
     if (nbImpression && format !== 'null') {
         nbOnPlanche = calculOnPlanche(dictNbOnPaper, format)
     } else {
-        return 'Veuillez renseigner des informations correctes'
+        alert("Veuillez saisir un format d'impression et une quantité valide.")
+        return ''
+    }
+
+    if (typePapier === 'null') {
+        alert('Veuillez rensigner un type de papier')
+        return ''
     }
     //Le prix unitaire en fonction de la quantité renseignée
     if (nbImpression && typePapier != 'null') {
@@ -200,14 +225,14 @@ function updateCalcul(datasImpressions, format, nbImpression, typePapier, select
     if (nbOnPlanche != 0 && prixUnitaire != 0) {
         btnValidation.disabled = false
         inputNom.disabled = false
+        pourcentageInput.disabled = false
         selectEntreprise.disabled = false
         selectClient.disabled = false
+        pourcentageInput.value = 0
         return calculPrix(datasImpressions, nbPlanches, typePapier, prixUnitaire, selectRecto, prixPliage, prix_designation)
     } else {
-        console.log('nb sur une planche : ', nbOnPlanche)
-        console.log('prixUnitaire : ', prixUnitaire)
-        console.warn('Tous les champs doivent être renseignés')
-        return 'Veuillez renseigner tous les champs'
+        alert('Veuillez renseigner tous les champs.')
+        return ''
     }
 }
 
@@ -225,16 +250,59 @@ function addSelectFormatType(dictNbOnPaper) {
 
 //Ajoute dynamiquement les types de papier dans le select
 function addSelectPaperType(datasImpressions) {
-    //On récupère les types de papier
     const select_type = document.querySelector('.select_type_papier')
-    datasImpressions.forEach((impression) => {
-        //On les insère dans la balise select
-        //Selecteur pour le type de papier
-        const option = document.createElement('option')
-        option.value = impression.Id_papier
-        option.innerHTML = `${impression.nom_papier} (Prix - Recto  : ${impression.prix_recto}€ / Recto Verso : ${impression.prix_recto_verso}€)`
-        select_type.appendChild(option)
+    select_type.innerHTML = ''
+
+    const options = [{ value: 'null', label: '-----------', disabled: true, selected: true }]
+
+    options.push(
+        ...datasImpressions.map((impression) => ({
+            value: impression.Id_papier,
+            label: impression.nom_papier,
+            customProperties: {
+                prix: `(Prix - Recto : ${impression.prix_recto}€ / Recto Verso : ${impression.prix_recto_verso}€)`,
+            },
+        }))
+    )
+
+    papierChoices = new Choices(select_type, {
+        removeItemButton: false,
+        searchEnabled: true,
+        itemSelectText: '',
+        shouldSort: false,
+        callbackOnCreateTemplates: function (template) {
+            return {
+                item: (classNames, data) => {
+                    const prix = data.customProperties?.prix
+                    return template(`
+                        <div class="${classNames.item} ${
+                        data.highlighted ? classNames.highlightedState : classNames.itemSelectable
+                    }" data-item data-id="${data.id}" data-value="${data.value}" ${data.active ? 'aria-selected="true"' : ''}>
+                            ${data.label}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#999; font-style:italic;">${
+                        prix ?? ''
+                    }</span>
+                        </div>
+                    `)
+                },
+                choice: (classNames, data) => {
+                    const prix = data.customProperties?.prix
+                    return template(`
+                        <div class="${classNames.item} ${classNames.itemChoice} ${
+                        data.disabled ? classNames.itemDisabled : classNames.itemSelectable
+                    }" data-select-text="" data-choice data-id="${data.id}" data-value="${data.value}" ${
+                        data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'
+                    } style="margin-bottom: 15px;margin-left:10px;">
+                            ${data.label}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#999; font-style:italic;">${
+                        prix ?? ''
+                    }</span>
+                        </div>
+                    `)
+                },
+            }
+        },
     })
+
+    papierChoices.setChoices(options, 'value', 'label', true)
 }
 
 function calculOnPlanche(dictNbOnPaper, format) {
@@ -274,7 +342,7 @@ function calculPrix(datasImpressions, nbPlanches, id, prixUnitaire, selectRecto,
 function getPrixDegressif(datasDegressif, quantite) {
     if (!Array.isArray(datasDegressif) || datasDegressif.length === 0) {
         console.warn('Données dégressives invalides ou vides.')
-        return null
+        return 1
     }
     let trancheMax = null
     for (const tranche of datasDegressif) {
@@ -296,7 +364,7 @@ function getPrixDegressif(datasDegressif, quantite) {
         return trancheMax.prix
     }
     console.warn('⚠️ Aucune tranche applicable trouvée pour quantité =', quantite)
-    return null
+    return 1
 }
 
 function PopupValiderEnregistrement(
@@ -312,11 +380,29 @@ function PopupValiderEnregistrement(
     idClient
 ) {
     if (session !== null) {
+        if (idClient === -2) {
+            alert("Veuillez saisir un client correspondant à l'entreprise.")
+            return
+        }
         console.log('action : ', action)
         const grammage = datasImpressions.find((impr) => impr.Id_papier === parseInt(typePapier))?.grammage
         const recto = selectRecto === 'recto' ? 'Recto' : 'Recto/Verso'
+
+        if (nom.trim() === '') {
+            nom = id
+            if (parseInt(idClient) === -1) {
+                nom = 'Simulation_' + id
+            }
+        } else {
+            //Si le nom n'est pas vide
+            if (parseInt(idClient) === -1) {
+                nom = 'Simulation_' + nom
+            }
+        }
+
         const params = new URLSearchParams({
-            nom: nom === '' ? id : nom,
+            id: id,
+            nom: nom,
             format: format,
             nbImpression: nbImpression,
             item: typePapier,
@@ -326,13 +412,15 @@ function PopupValiderEnregistrement(
             idClient: idClient,
             designations: JSON.stringify(getDatasDesignations()),
         })
+        for (const [key, value] of params.entries()) {
+            console.log(`${key} = ${value}`)
+        }
 
         // ********************************************** Si on modifie un devis déjà existant
         if (action === 'modif') {
             // On ajoute l'id dans les paramètres
             //Envoie à la base de données, attend la réponse
             params.append('idD', idDevis)
-
             fetch('../app/app.php?action=modif_devis_impr', {
                 method: 'POST',
                 headers: {
@@ -362,47 +450,10 @@ function PopupValiderEnregistrement(
                 .catch((error) => {
                     alert("Une erreur s'est produite, veuillez reessayer.")
                 })
-        } else if (action === 'copy') {
-            // ************************************************************** Si on duplique un devis déjà existant
-
-            //Envoie à la base de données, attend la réponse
-            fetch('../app/app.php?action=copy_devis_impr', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: params.toString(),
-            })
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.status === 'success') {
-                        //Code en cas de succès
-                        const newIdDevis = parseInt(data.idDevis)
-                        const demandeVoirDevisModif = confirm('Votre devis a été copié. Voulez-vous le visualiser ? ')
-                        if (demandeVoirDevisModif) {
-                            const url = `../app/app.php?action=devis_visualisation&id=${encodeURIComponent(newIdDevis)}`
-                            window.open(url, '_blank')
-                        } else {
-                            const url = '../app/app.php?action=calcul_impression'
-                            window.location.href = url
-                        }
-                    } else {
-                        //Code en cas d'erreur
-                        alert(data.message)
-                    }
-                })
-                .catch((error) => {
-                    alert("Une erreur s'est produite, veuillez reessayer.")
-                    console.log(error)
-                })
         } else {
             // ***************************************************** Enregistrement normal
             const validation = confirm('Voulez-vous enregistrer ce devis ? ')
             if (validation) {
-                if (parseInt(idClient) === -1) {
-                    id = 'Simulation_' + id
-                }
-
                 //Envoie à la base de données, attend la réponse
                 fetch(`../app/app.php?action=add_impr_data`, {
                     method: 'POST',
@@ -453,6 +504,7 @@ function remplirCalculDevis() {
     format.value = datasDevisImpr.format ?? ''
     nbImpression.value = datasDevisImpr.quantite ?? ''
     typePapier.value = datasDevisImpr.Id_impr
+    papierChoices.setChoiceByValue(datasDevisImpr.Id_impr)
     selectRecto.value = datasDevisImpr.type_impression === 'Recto' ? 'recto' : 'recto-verso'
     selectRecto_value = selectRecto.value
     selectRecto.selected = selectRecto_value
@@ -470,7 +522,10 @@ function remplirCalculDevis() {
         inputNom.value = datasDevisImpr.enregistrement_nom
         btnValidation.innerHTML = 'Modifier le devis'
     }
-    spanCoutTotal.innerHTML = `${datasDevisImpr.prix}€`
+    coutTotal = datasDevisImpr.prix
+    spanCoutTotal.innerHTML = `${coutTotal}€`
     inputNom.disabled = false
+    inputNom.dispatchEvent(new Event('change'))
     btnValidation.disabled = false
+    pourcentageInput.disabled = false
 }

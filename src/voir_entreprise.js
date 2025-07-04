@@ -7,6 +7,7 @@ const inputRecherche = document.querySelector('.searchInput')
 const btnRecherche = document.querySelector('.searchBtn')
 const btnSupprRecherche = document.querySelector('.delSearch')
 const selectTrie = document.querySelector('.select_trie')
+const divPagination = document.querySelector('.pagination')
 
 //Selecteurs pour la PopUp
 const popup = document.querySelector('.popupEntreprise')
@@ -19,6 +20,7 @@ btnPopup.addEventListener('click', () => {
 selectTrie.addEventListener('change', () => {
     const critere = selectTrie.value
     const datasTrie = trieDatas(critere, datasEntreprises, datasAdressesPrincipales)
+    createPagination(datasTrie, tabEntreprises, divPagination)
     addTabEntreprises(datasTrie, datasAdressesPrincipales, tabEntreprises)
 })
 
@@ -26,6 +28,7 @@ selectTrie.addEventListener('change', () => {
 btnRecherche.addEventListener('click', () => recherche(inputRecherche.value.toLowerCase()))
 btnSupprRecherche.addEventListener('click', () => {
     inputRecherche.value = ''
+    createPagination(datasEntreprises, tabEntreprises, divPagination)
     addTabEntreprises(datasEntreprises, datasAdressesPrincipales, tabEntreprises)
 })
 
@@ -40,15 +43,17 @@ window.addEventListener('DOMContentLoaded', () => {
             console.log('entreprises : ', datasEntreprises)
 
             datasEntreprises.sort((a, b) => a.nom_entreprise.localeCompare(b.nom_entreprise))
-
+            createPagination(datasEntreprises, tabEntreprises, divPagination)
             addTabEntreprises(datasEntreprises, datasAdressesPrincipales, tabEntreprises)
         })
         .catch((error) => console.error('Erreur lors du chargement des données :', error))
 })
 
-function addTabEntreprises(datasEntreprises, datasAdressesPrincipales, tabEntreprises) {
+function addTabEntreprises(datasEntreprises, datasAdressesPrincipales, tabEntreprises, start = 0, limit = 20) {
     tabEntreprises.innerHTML = ''
-    datasEntreprises.forEach((entreprise) => {
+    const paginatedData = datasEntreprises.slice(start, start + limit)
+    console.log(paginatedData)
+    paginatedData.forEach((entreprise) => {
         const tr = document.createElement('tr')
 
         // Nom entreprise
@@ -188,6 +193,7 @@ function recherche(texte) {
     if (datasFiltre.length === 0) {
         alert(`Aucun résultat trouvé avec la recherche "${texte}"`)
     } else {
+        createPagination(datasFiltre, tabEntreprises, divPagination)
         addTabEntreprises(datasFiltre, datasAdressesPrincipales, tabEntreprises)
         alert(`${datasFiltre.length} résultat(s) trouvé(s) avec la recherche "${texte}"`)
     }
@@ -195,25 +201,34 @@ function recherche(texte) {
 
 function trieDatas(trie, datasEntreprises, datasAdressesPrincipales) {
     let datasTries = [...datasEntreprises] // copie des données
-
     datasTries.sort((a, b) => {
         const adresseA = datasAdressesPrincipales.find((ad) => parseInt(ad.Id_entreprise) === parseInt(a.Id_entreprise))
         const adresseB = datasAdressesPrincipales.find((ad) => parseInt(ad.Id_entreprise) === parseInt(b.Id_entreprise))
-
         switch (trie) {
             case 'nom':
                 return a.nom_entreprise.localeCompare(b.nom_entreprise)
-
             case 'cp':
                 return (adresseA?.code_postal || '').localeCompare(adresseB?.code_postal || '')
-
             case 'ville':
                 return (adresseA?.ville || '').localeCompare(adresseB?.ville || '')
-
             default:
                 return 0 // pas de tri
         }
     })
-
     return datasTries
+}
+
+function createPagination(datas, tabEntreprises, divPagination, limit = 20) {
+    divPagination.innerHTML = ''
+    const totalPages = Math.ceil(datas.length / limit)
+    console.log('taille : ', datas.length)
+    for (let i = 0; i < totalPages; i++) {
+        const btn = document.createElement('button')
+        btn.textContent = `Page ${i + 1}`
+        btn.classList.add('pagination-btn')
+        btn.addEventListener('click', () => {
+            addTabEntreprises(datas, datasAdressesPrincipales, tabEntreprises, i * limit, limit)
+        })
+        divPagination.appendChild(btn)
+    }
 }

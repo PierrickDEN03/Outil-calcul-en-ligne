@@ -61,7 +61,7 @@
                     $this->formulaireConnexion();
                 break;
                 case "form_connect" : 
-                    if(!empty($_SESSION)){
+                    if(!empty($_SESSION['Pseudo'])){
                         $this->dejaConnecte();
                     }else{
                         try{
@@ -81,7 +81,7 @@
                 break; 
                 case "deconnexion" :
                     try{
-                        if(!empty($_SESSION)){
+                        if(!empty($_SESSION['Pseudo'])){
                             $_SESSION=array();
                             session_destroy();
                             $this->Deconnexion();
@@ -90,16 +90,16 @@
                         $this->retourConnexion();
                     } 
                 case "modif" :              //affiche le formulaire pour modifier le profil
-                    if(!empty($_SESSION)){
+                    if(!empty($_SESSION['Pseudo'])){
                         $this->tbs->LoadTemplate("../templates/modif.form.tpl.html");
                         $this->tbs->Show();   
                     } 
                 case "form_modif" :         //modifie le profil
                     try{
-                        if(empty($_SESSION)){
+                        if(empty($_SESSION['Pseudo'])){
                             $this->retourConnexion();
                         }else{
-                            if(!empty($_SESSION) && (!empty($_POST["pseudo"]) && (!empty($_POST["password"])))){
+                            if(!empty($_SESSION['Pseudo']) && (!empty($_POST["pseudo"]) && (!empty($_POST["password"])))){
                                 $acc_users->ModifierProfil($_SESSION['Id'],$_POST["pseudo"],$_POST["password"]);
                                 $_SESSION['Pseudo']=$_POST["pseudo"];     //on modifie les infos de la session
                                 $this->pageModifEffectuees();
@@ -112,7 +112,7 @@
                     } 
                 break;  
             default:
-                if(empty($_SESSION)){
+                if(empty($_SESSION['Pseudo'])){
                     $this->tbs->LoadTemplate("../templates/connexion.form.tpl.html");
                     $this->tbs->Show();
                 }else{

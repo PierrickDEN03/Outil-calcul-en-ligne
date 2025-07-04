@@ -17,6 +17,7 @@
         }
         $appli->moteur($acc_users);
     }catch(PDOException $e){
+        echo$e;
         $appli->moteur($acc_users);
     }
 ?>

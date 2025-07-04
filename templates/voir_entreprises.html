@@ -8,7 +8,7 @@
     </head>
     <body>
         <h1>Visualisation des Entreprises</h1>
-        <p>
+        <div style="padding: 0 40%">
             <a href="../app/app.php?action=backoffice">
                 <img
                     src="../img/back-button.png"
@@ -16,7 +16,7 @@
                     style="width: 45px; height: 45px; vertical-align: middle; margin-right: 8px"
                 />Retour au Backoffice</a
             >
-        </p>
+        </div>
 
         <div class="container">
             <!-- Tableau principal des enregistrements -->
@@ -58,6 +58,10 @@
                         <!-- Les données seront insérées ici dynamiquement -->
                     </tbody>
                 </table>
+                <div
+                    style="display: flex; justify-content: center; align-items: center; margin: 20px 0; gap: 20px"
+                    class="pagination"
+                ></div>
             </section>
             <!-- ****************************** PopUp Ajout Entreprise et Client ****************************************** -->
             <div class="popup-container popupEntreprise hidden">

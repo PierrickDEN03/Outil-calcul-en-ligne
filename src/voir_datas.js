@@ -1,6 +1,7 @@
 let datas = []
 let datasClients = []
 let datasEntreprises = []
+const divPagination = document.querySelector('.pagination')
 const inputRecherche = document.querySelector('.searchInput')
 const btnRecherche = document.querySelector('.searchBtn')
 const btnSupprRecherche = document.querySelector('.delSearch')
@@ -20,6 +21,7 @@ window.addEventListener('DOMContentLoaded', () => {
             console.log('datasEntreprises : ', datasEntreprises)
 
             // Appel de fonction
+            createPagination(datas, tabDatas, divPagination)
             addTabDatas(datas, datasClients, datasEntreprises, tabDatas)
         })
         .catch((error) => console.error('Erreur lors du chargement des données :', error))
@@ -29,6 +31,7 @@ window.addEventListener('DOMContentLoaded', () => {
 selectTrie.addEventListener('change', () => {
     const critere = selectTrie.value
     const datasTrie = trieDatas(critere, datas)
+    createPagination(datasTrie, tabDatas, divPagination)
     addTabDatas(datasTrie, datasClients, datasEntreprises, tabDatas)
 })
 
@@ -42,9 +45,10 @@ function formatValue(val, type, champ) {
 }
 
 // Fonction modifiée pour générer les lignes dynamiquement
-function addTabDatas(datas, datasClients, datasEntreprises, tabDatas) {
+function addTabDatas(datas, datasClients, datasEntreprises, tabDatas, start = 0, limit = 20) {
     tabDatas.innerHTML = ''
-    datas.forEach((data) => {
+    const paginatedData = datas.slice(start, start + limit)
+    paginatedData.forEach((data) => {
         const tr = document.createElement('tr')
 
         // Cellule invisible pour Id_enregistrement
@@ -117,6 +121,7 @@ function addTabDatas(datas, datasClients, datasEntreprises, tabDatas) {
             window.location.href = url
         })
 
+        //Bouton supprimer
         const btnSuppr = document.createElement('button')
         btnSuppr.textContent = 'Supprimer'
         btnSuppr.classList.add('btn-suppr')
@@ -150,10 +155,8 @@ function addTabDatas(datas, datasClients, datasEntreprises, tabDatas) {
         imgPasteDevis.style.height = '20px'
         btnMPasteDevis.appendChild(imgPasteDevis)
         btnMPasteDevis.addEventListener('click', () => {
-            //En fonction du type de devis, on renvoie sur une page de calcul différent
-            const direction = data.type_enregistrement === 'Feuille' ? 'calcul_impression' : 'calcul_matiere'
-            const url = `../app/app.php?action=${direction}&modif=copy&id=${encodeURIComponent(data.Id_enregistrement)}`
-            window.open(url, '_blank')
+            const url = `../app/app.php?action=copy_devis_voir_datas&id=${encodeURIComponent(data.Id_enregistrement)}`
+            window.location.href = url
         })
 
         //Bouton PDF
@@ -232,6 +235,7 @@ function trieDatas(trie, datas) {
 btnRecherche.addEventListener('click', () => recherche(inputRecherche.value.toLowerCase()))
 btnSupprRecherche.addEventListener('click', () => {
     inputRecherche.value = ''
+    createPagination(datas, tabDatas, divPagination)
     addTabDatas(datas, datasClients, datasEntreprises, tabDatas)
 })
 
@@ -273,7 +277,23 @@ function recherche(texte) {
     if (datasFiltre.length === 0) {
         alert(`Aucun résultat trouvé avec la recherche "${texte}"`)
     } else {
+        createPagination(datasFiltre, tabDatas, divPagination)
         addTabDatas(datasFiltre, datasClients, datasEntreprises, tabDatas)
         alert(`${datasFiltre.length} résultat(s) trouvé(s) avec la recherche "${texte}"`)
+    }
+}
+
+function createPagination(datas, tabDatas, divPagination, limit = 20) {
+    divPagination.innerHTML = ''
+    const totalPages = Math.ceil(datas.length / limit)
+    console.log('taille données : ', datas.length)
+    for (let i = 0; i < totalPages; i++) {
+        const btn = document.createElement('button')
+        btn.textContent = `Page ${i + 1}`
+        btn.classList.add('pagination-btn')
+        btn.addEventListener('click', () => {
+            addTabDatas(datas, datasClients, datasEntreprises, tabDatas, i * limit, limit)
+        })
+        divPagination.appendChild(btn)
     }
 }

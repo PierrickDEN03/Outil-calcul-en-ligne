@@ -142,17 +142,17 @@ btnAjouterEntrepriseClient.addEventListener('click', () => {
     }
 
     //On remplace les champs vides par des espaces
-    siretEntrepriseVal = siretEntrepriseVal === '' ? 'Non renseigné' : siretEntrepriseVal
-    mailEntrepriseVal = mailEntrepriseVal === '' ? 'Non renseigné' : mailEntrepriseVal
-    telephoneEntrepriseVal = telephoneEntrepriseVal === '' ? 'Non renseigné' : telephoneEntrepriseVal
-    rueEntrepriseVal = rueEntrepriseVal === '' ? 'Non renseigné' : rueEntrepriseVal
-    codePostalEntrepriseVal = codePostalEntrepriseVal === '' ? '00000' : codePostalEntrepriseVal
-    villeEntrepriseVal = villeEntrepriseVal === '' ? 'Non renseigné' : villeEntrepriseVal
+    siretEntrepriseVal = siretEntrepriseVal === '' ? '' : siretEntrepriseVal
+    mailEntrepriseVal = mailEntrepriseVal === '' ? '' : mailEntrepriseVal
+    telephoneEntrepriseVal = telephoneEntrepriseVal === '' ? '' : telephoneEntrepriseVal
+    rueEntrepriseVal = rueEntrepriseVal === '' ? '' : rueEntrepriseVal
+    codePostalEntrepriseVal = codePostalEntrepriseVal === '' ? '' : codePostalEntrepriseVal
+    villeEntrepriseVal = villeEntrepriseVal === '' ? '' : villeEntrepriseVal
 
-    nomPrenomClientVal = nomPrenomClientVal === '' ? 'Non renseigné' : nomPrenomClientVal
-    mailClientVal = mailClientVal === '' ? 'Non renseigné' : mailClientVal
-    telephoneClientVal = telephoneClientVal === '' ? '00000000' : telephoneClientVal
-    fixeClientVal = fixeClientVal === '' ? '00000000' : fixeClientVal
+    nomPrenomClientVal = nomPrenomClientVal === '' ? '' : nomPrenomClientVal
+    mailClientVal = mailClientVal === '' ? '' : mailClientVal
+    telephoneClientVal = telephoneClientVal === '' ? '' : telephoneClientVal
+    fixeClientVal = fixeClientVal === '' ? '' : fixeClientVal
 
     // Construction de l'URL avec tous les paramètres
     const url =

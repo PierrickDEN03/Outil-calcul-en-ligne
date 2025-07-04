@@ -3,13 +3,15 @@
     <head>
         <meta charset="UTF-8" />
         <title>Visualisation Devis</title>
-        <link rel="stylesheet" href="../style/devis.css" />
+        <!-- <link rel="stylesheet" href="../style/devis.css" /> -->
+        <link rel="stylesheet" href="https://devis.horspiste-communication.fr/style/devis.css" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     </head>
     <body>
         <button class="btnGenererPDF">Générer PDF</button>
         <div class="PDF_content">
             <header class="header">
+                <div class="header_image"></div>
                 <div class="company-details">
                     <p>
                         <span class="ref">V/Réf. : <span class="ref_header"></span></span>
@@ -110,12 +112,15 @@
             </div>
 
             <footer class="footer">
-                <p>
-                    <strong>Règlement : <span class="reglement"></span></strong>
-                </p>
-                <div class="footer-page">
-                    <span class="page-number">Page 1 / 1</span>
+                <div class="footer-content">
+                    <p>
+                        <strong>Règlement : <span class="reglement"></span></strong>
+                    </p>
+                    <div class="footer-page">
+                        <span class="page-number">Page 1 / 1</span>
+                    </div>
                 </div>
+                <div class="footer_image"></div>
             </footer>
         </div>
 

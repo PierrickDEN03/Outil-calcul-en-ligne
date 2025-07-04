@@ -30,6 +30,14 @@ class AccesEntreprises {
         return $res;
     }
 
+    public function getNomEntrepriseWithId($id) {
+        $query = $this->pdo->prepare('SELECT nom_entreprise FROM entreprises WHERE Id_entreprise=:id');
+        $query->bindParam(":id",$id);
+        $query->execute();
+        $result = $query->fetchAll(PDO::FETCH_ASSOC);
+        return $result;
+    }
+
     public function getEntreprises() {
         $query = $this->pdo->prepare('SELECT * FROM entreprises WHERE Id_entreprise!=-1');
         $query->execute();
@@ -73,31 +81,14 @@ class AccesEntreprises {
         $res->execute();
     }
 
-    public function modifNom($id,$nom){
-        $res=$this->pdo->prepare("UPDATE entreprises SET nom_entreprise=:nom WHERE Id_entreprise=:id");
+    public function modifInfosGenerales($id,$nom,$mail,$telephone,$siret, $paiement){
+        $res=$this->pdo->prepare("UPDATE entreprises SET nom_entreprise=:nom, mail=:mail, telephone=:telephone, siret=:siret, Id_paiement=:paiement WHERE Id_entreprise=:id");
         $res->bindParam(":nom",$nom);
-        $res->bindParam(":id",$id);
-        $res->execute();
-    }
-
-    public function modifMail($id,$mail){
-        $res=$this->pdo->prepare("UPDATE entreprises SET mail=:mail WHERE Id_entreprise=:id");
         $res->bindParam(":mail",$mail);
-        $res->bindParam(":id",$id);
-        $res->execute();
-    }
-
-    public function modifSiret($id,$siret){
-        $res=$this->pdo->prepare("UPDATE entreprises SET siret=:siret WHERE Id_entreprise=:id");
+        $res->bindParam(":telephone",$telephone);
         $res->bindParam(":siret",$siret);
         $res->bindParam(":id",$id);
-        $res->execute();
-    }
-
-    public function modifTelephone($id,$telephone){
-        $res=$this->pdo->prepare("UPDATE entreprises SET telephone=:telephone WHERE Id_entreprise=:id");
-        $res->bindParam(":telephone",$telephone);
-        $res->bindParam(":id",$id);
+        $res->bindParam(":paiement",$paiement);
         $res->execute();
     }
 
@@ -108,12 +99,6 @@ class AccesEntreprises {
         $res->execute();
     }
 
-    public function modifModalPaiement($id,$mPaiement){
-        $res=$this->pdo->prepare("UPDATE entreprises SET Id_paiement=:mpaiement WHERE Id_entreprise=:id");
-        $res->bindParam(":id",$id);
-        $res->bindParam(":mpaiement",$mPaiement);
-        $res->execute();
-    }
 
     public function getLastId(){
         // Utilise la connexion courante pour éviter les problèmes de concurrence

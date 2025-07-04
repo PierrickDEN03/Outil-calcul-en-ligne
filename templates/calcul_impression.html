@@ -56,10 +56,14 @@
                     </div>
                     <div class="form-row">
                         <label for="check-pliage"
-                            >Option pliage simple (<span class="prix_pliage"></span>€/unite, frais de lancement :
+                            >Option pliage simple (<span class="prix_pliage"></span>€/unite, frais fixe :
                             <span class="frais_pliage"></span>€)</label
                         >
                         <input type="checkbox" class="check-pliage" name="check-pliage" value="false" />
+                    </div>
+                    <div class="form-row">
+                        <label for="frais_fixe">Frais fixe : </label>
+                        <span class="fraix_fixe"></span>
                     </div>
                     <div>
                         <div class="form-row">
@@ -70,15 +74,14 @@
                         <div class="designation-row"></div>
                     </div>
                     <div class="form-row">
-                        <label for="frais_fixe">Frais fixe : </label>
-                        <span class="fraix_fixe"></span>
-                    </div>
-                    <div class="form-row">
                         <input type="button" class="button-calcul-impressions" value="Faire le calcul" />
                     </div>
-                    <div class="form-row">
-                        <label for="total_cout">Cout total : </label>
-                        <span class="total_cout_impressions"></span>
+                    <div class="form-row" style="justify-content: space-between">
+                        <div><label for="total_cout">Cout total : </label> <span class="total_cout_impressions"></span></div>
+                        <div>
+                            <label for="pourcentage">Cout supplémentaire (en %) : </label> <span class="pourcentage"></span>
+                            <input type="number" min="0" step="0.1" class="pourcentageInput" value="0" />
+                        </div>
                     </div>
                     <div class="form-row nom-devis-row">
                         <label for="nom_devis">Nom du devis (optionnel)</label>
@@ -90,6 +93,9 @@
                             <label for="selectEntreprise">Entreprise (optionnel)</label>
                             <select name="selectEntreprise" class="selectEntreprise"></select>
                             <button onclick="window.open('../app/app.php?action=voir_entreprise', '_blank')">+</button>
+                            <button class="btnRefresh">
+                                <img src="../img/refresh.png" alt="Rafraichir" style="width: 15px; height: 15px; vertical-align: middle" />
+                            </button>
                         </div>
                         <div class="form-row hiddenClient">
                             <label for="selectClient">Client</label>

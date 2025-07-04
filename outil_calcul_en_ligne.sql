@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : lun. 23 juin 2025 à 10:00
+-- Généré le : ven. 04 juil. 2025 à 17:58
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -41,11 +41,7 @@ CREATE TABLE `adresses` (
 --
 
 INSERT INTO `adresses` (`Id_adresse`, `priorite_adresse`, `rue`, `code_postal`, `ville`, `Id_entreprise`) VALUES
-(-1, 1, 'Non renseigné', 'Non renseigné', 'Non renseigné', -1),
-(35, 1, '30 rue de la Meue', '42400', 'Saint-Chamond', 32),
-(36, 2, '4 bis clos dupont', '42400', 'Saint-Chamond', 32),
-(37, 3, '38 rue de la paix', '42000', 'Saint-Etienne', 32),
-(38, 1, 'Non renseigné', '00000', 'Non renseigné', 33);
+(-1, 1, 'Non renseigné', 'Non renseigné', 'Non renseigné', -1);
 
 -- --------------------------------------------------------
 
@@ -69,11 +65,7 @@ CREATE TABLE `clients` (
 --
 
 INSERT INTO `clients` (`Id_client`, `priorite`, `nom_prenom`, `mail`, `telephone`, `fixe`, `entreprise_Id`, `adresse_Id`) VALUES
-(-1, 1, 'Non renseigné', '2025-06-18 16:32:05', '0000000000', '0000000000', -1, -1),
-(54, 2, 'Dupond Jean', 'dupont@gmail.com', '0775145134', '0387226151', 32, 35),
-(55, 1, 'Babolat Tristan', 'babolat@gmail.com', '9077514136', '0180912695', 32, 35),
-(57, 1, 'Phillipe Paul', 'paul@gmail.com', '0867617411', '0000000011', 33, 38),
-(58, 3, 'Edouard Leclerc', 'el@gmail.com', '0616164234', '0181907198', 32, 37);
+(-1, 1, 'Non renseigné', '2025-06-18 16:32:05', '0000000000', '0000000000', -1, -1);
 
 -- --------------------------------------------------------
 
@@ -91,7 +83,7 @@ CREATE TABLE `decoupe` (
 --
 
 INSERT INTO `decoupe` (`Id_decoupe`, `prix_decoupe`) VALUES
-(1, 20.02);
+(1, 19);
 
 -- --------------------------------------------------------
 
@@ -106,15 +98,6 @@ CREATE TABLE `degressif_impression` (
   `prix` double NOT NULL COMMENT 'Coefficient multiplicateur'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Déchargement des données de la table `degressif_impression`
---
-
-INSERT INTO `degressif_impression` (`Id_deg_matiere`, `min`, `max`, `prix`) VALUES
-(2, 101, 300, 0.8),
-(3, 301, 800, 0.5),
-(7, 1, 100, 1);
-
 -- --------------------------------------------------------
 
 --
@@ -125,17 +108,8 @@ CREATE TABLE `degressif_matiere` (
   `Id_deg_matiere` int(11) NOT NULL,
   `min` int(11) DEFAULT NULL,
   `max` int(11) NOT NULL,
-  `prix_surface` double NOT NULL COMMENT 'Coefficient multiplicateur'
+  `prix_surface` double DEFAULT NULL COMMENT 'Coefficient multiplicateur'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Déchargement des données de la table `degressif_matiere`
---
-
-INSERT INTO `degressif_matiere` (`Id_deg_matiere`, `min`, `max`, `prix_surface`) VALUES
-(2, 101, 300, 0.8),
-(4, 0, 100, 1),
-(5, 301, 800, 0.5);
 
 -- --------------------------------------------------------
 
@@ -144,7 +118,7 @@ INSERT INTO `degressif_matiere` (`Id_deg_matiere`, `min`, `max`, `prix_surface`)
 --
 
 CREATE TABLE `enregistrements` (
-  `Id_enregistrement` int(11) NOT NULL,
+  `Id_enregistrement` varchar(300) NOT NULL,
   `nom_enregistrement` varchar(300) NOT NULL,
   `date` date NOT NULL,
   `type_enregistrement` varchar(300) NOT NULL,
@@ -163,22 +137,6 @@ CREATE TABLE `enregistrements` (
   `Id_client` int(11) NOT NULL,
   `Id_lamination` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Déchargement des données de la table `enregistrements`
---
-
-INSERT INTO `enregistrements` (`Id_enregistrement`, `nom_enregistrement`, `date`, `type_enregistrement`, `quantite`, `prix`, `longueur`, `largeur`, `espace_pose`, `decoupe`, `format`, `type_impression`, `pliage`, `designations`, `Id_matiere`, `Id_impr`, `Id_client`, `Id_lamination`) VALUES
-(144, '202506-1549-46980H', '2025-06-20', 'Matière', 13, 114.58, 45, 65, 0, 'Non', '', '', '', '[]', 2, -1, -1, 1),
-(145, '202506-1551-31665H', '2025-06-20', 'Matière', 13, 141.69, 79, 45, 0, 'Non', '', '', '', '[]', 9, -1, -1, 1),
-(146, '202506-1554-19974H', '2025-06-20', 'Feuille', 864, 11273.76, 0, 0, 0, '', 'A5', 'Recto', 'Oui', '[]', -1, 10, -1, -1),
-(147, '202506-1555-17556H', '2025-06-20', 'Feuille', 864, 11273.76, 0, 0, 0, '', 'A5', 'Recto', 'Non', '[]', -1, 10, -1, -1),
-(148, 'test', '2025-06-21', 'Feuille', 76, 1031.96, 0, 0, 0, '', 'A6', 'Recto', 'Oui', '[]', -1, 11, 58, -1),
-(149, '202506-1632-52394H', '2025-06-21', 'Feuille', 764, 10453.76, 0, 0, 0, '', 'A4', 'Recto', 'Oui', '[]', -1, 10, -1, -1),
-(150, '202506-1636-46994H', '2025-06-21', 'Feuille', 76, 1031.96, 0, 0, 0, '', 'A6', 'Recto', 'Non', '[]', -1, 11, 57, -1),
-(151, 'LDevis', '2025-06-21', 'Feuille', 76, 1031.96, 0, 0, 0, '', 'A6', 'Recto', 'Non', '[]', -1, 11, -1, -1),
-(152, '202506-0841-30884H', '2025-06-23', 'Feuille', 43, 606.41, 0, 0, 0, '', 'A7', 'Recto/Verso', 'Oui', '[]', -1, 11, -1, -1),
-(154, '202506-0850-27788H', '2025-06-23', 'Matière', 11, 222, 76, 53, 12, 'Oui', '', '', '', '[]', 2, -1, -1, 2);
 
 -- --------------------------------------------------------
 
@@ -200,9 +158,7 @@ CREATE TABLE `entreprises` (
 --
 
 INSERT INTO `entreprises` (`Id_entreprise`, `nom_entreprise`, `mail`, `telephone`, `siret`, `Id_paiement`) VALUES
-(-1, 'Non renseigné', 'Non renseigné', '00000000', 'Non renseigné', 1),
-(32, 'Total', 'total@gmail.com', '0709725411', '98278526436534', 1),
-(33, 'Leclerc', 'Non renseigné', 'Non renseigné', 'Non renseigné', 1);
+(-1, 'Non renseigné', 'Non renseigné', '00000000', 'Non renseigné', 1);
 
 -- --------------------------------------------------------
 
@@ -212,7 +168,7 @@ INSERT INTO `entreprises` (`Id_entreprise`, `nom_entreprise`, `mail`, `telephone
 
 CREATE TABLE `frais_fixe_impr` (
   `Id_frais` int(11) NOT NULL,
-  `prix_frais` double NOT NULL
+  `prix_frais` double DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -230,7 +186,7 @@ INSERT INTO `frais_fixe_impr` (`Id_frais`, `prix_frais`) VALUES
 
 CREATE TABLE `frais_fixe_mat` (
   `Id_frais` int(11) NOT NULL,
-  `prix_frais` double NOT NULL
+  `prix_frais` double DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -238,7 +194,7 @@ CREATE TABLE `frais_fixe_mat` (
 --
 
 INSERT INTO `frais_fixe_mat` (`Id_frais`, `prix_frais`) VALUES
-(1, 28.05);
+(1, 0.01);
 
 -- --------------------------------------------------------
 
@@ -261,8 +217,7 @@ CREATE TABLE `impressions` (
 
 INSERT INTO `impressions` (`Id_papier`, `nom_papier`, `grammage`, `code_matiere`, `prix_recto`, `prix_recto_verso`) VALUES
 (-1, 'Non renseigné', 0, '000000', 0, 0),
-(10, 'Bâche', 87, 'BÂCHE87', 5, 8.3),
-(11, 'Mat', 56, 'MAT56', 3, 4);
+(12, 'Papier couché 115g', 115, 'PAPIE1151', 2, 4);
 
 -- --------------------------------------------------------
 
@@ -282,9 +237,9 @@ CREATE TABLE `laminations` (
 
 INSERT INTO `laminations` (`Id_lamination`, `description`, `prix_lamination`) VALUES
 (-1, 'Non renseigné', 0),
-(1, 'brillante ou mat test', 12),
-(2, '3D', 8.5),
-(3, 'effaçable ou anti Graff', 3.5);
+(2, '3D', 20),
+(3, 'effaçable ou anti Graff', 30),
+(11, 'Lamination Brillante', 12);
 
 -- --------------------------------------------------------
 
@@ -298,18 +253,21 @@ CREATE TABLE `matieres` (
   `code_matiere` varchar(300) NOT NULL,
   `prix_mcarre` double NOT NULL COMMENT '(en €)',
   `type_matiere` varchar(300) NOT NULL,
-  `laizes` int(11) NOT NULL COMMENT '(en cm)'
+  `laizes` int(11) NOT NULL COMMENT '(en cm)',
+  `marges` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Déchargement des données de la table `matieres`
 --
 
-INSERT INTO `matieres` (`Id_matiere`, `nom_matiere`, `code_matiere`, `prix_mcarre`, `type_matiere`, `laizes`) VALUES
-(-1, 'Non renseigné', '0000000', 0, 'Non renseigné', 0),
-(2, 'Bâche 510g', 'B510', 8.5, 'Bâche', 134),
-(5, 'Mat 200g', 'ABCDEED', 12, 'Bâche', 134),
-(9, 'papier 150g', 'PAPIE150', 9, 'papier', 137);
+INSERT INTO `matieres` (`Id_matiere`, `nom_matiere`, `code_matiere`, `prix_mcarre`, `type_matiere`, `laizes`, `marges`) VALUES
+(-1, 'Non renseigné', '0000000', 0, 'Non renseigné', 0, 0),
+(11, 'Bâche 510g', 'BÂCHE510', 25, 'Bâche 510g M1', 160, 0),
+(13, 'Adhésif 200g', 'ADHÉS200', 12, 'Adhésif polymère', 137, 12),
+(14, 'Alvéolaire 5mm', 'ALVÉO5', 33.66, 'Alvéolaire 5mm', 154, 0),
+(16, 'Alvéolaire 8mm', 'ALVÉO8', 42, 'Alvéolaire 8mm', 150, 0),
+(19, 'blabla', 'BLABL', 65, 'test', 143, 0);
 
 -- --------------------------------------------------------
 
@@ -327,9 +285,14 @@ CREATE TABLE `modalites_paiement` (
 --
 
 INSERT INTO `modalites_paiement` (`Id_paiement`, `label_paiement`) VALUES
-(1, 'Chèque'),
-(2, 'Virement'),
-(3, 'Espèces');
+(1, '33% à la commande, le sole à la livraison'),
+(2, '50% à la commande, le sole à la livraison'),
+(3, 'Comptant à la commande'),
+(4, 'Comptant à la livraison'),
+(5, 'Virement à la livraison'),
+(6, 'Virement à 30 jours'),
+(7, 'Virement à 45 jours fin de mois'),
+(8, 'Virement réception de facture');
 
 -- --------------------------------------------------------
 
@@ -363,7 +326,7 @@ INSERT INTO `nb_impressions_page` (`format_impression`, `nb_par_page`) VALUES
 CREATE TABLE `pliage` (
   `Id_pliage` int(11) NOT NULL,
   `prix_pliage` double NOT NULL,
-  `frais_fixe` double NOT NULL
+  `frais_fixe` double DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -371,7 +334,7 @@ CREATE TABLE `pliage` (
 --
 
 INSERT INTO `pliage` (`Id_pliage`, `prix_pliage`, `frais_fixe`) VALUES
-(1, 12.35, 35.06);
+(1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -502,13 +465,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT pour la table `adresses`
 --
 ALTER TABLE `adresses`
-  MODIFY `Id_adresse` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `Id_adresse` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT pour la table `clients`
 --
 ALTER TABLE `clients`
-  MODIFY `Id_client` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `Id_client` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
 
 --
 -- AUTO_INCREMENT pour la table `decoupe`
@@ -520,25 +483,19 @@ ALTER TABLE `decoupe`
 -- AUTO_INCREMENT pour la table `degressif_impression`
 --
 ALTER TABLE `degressif_impression`
-  MODIFY `Id_deg_matiere` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `Id_deg_matiere` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT pour la table `degressif_matiere`
 --
 ALTER TABLE `degressif_matiere`
-  MODIFY `Id_deg_matiere` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT pour la table `enregistrements`
---
-ALTER TABLE `enregistrements`
-  MODIFY `Id_enregistrement` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=155;
+  MODIFY `Id_deg_matiere` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT pour la table `entreprises`
 --
 ALTER TABLE `entreprises`
-  MODIFY `Id_entreprise` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `Id_entreprise` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT pour la table `frais_fixe_impr`
@@ -556,25 +513,25 @@ ALTER TABLE `frais_fixe_mat`
 -- AUTO_INCREMENT pour la table `impressions`
 --
 ALTER TABLE `impressions`
-  MODIFY `Id_papier` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `Id_papier` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT pour la table `laminations`
 --
 ALTER TABLE `laminations`
-  MODIFY `Id_lamination` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `Id_lamination` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT pour la table `matieres`
 --
 ALTER TABLE `matieres`
-  MODIFY `Id_matiere` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `Id_matiere` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT pour la table `modalites_paiement`
 --
 ALTER TABLE `modalites_paiement`
-  MODIFY `Id_paiement` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `Id_paiement` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT pour la table `pliage`

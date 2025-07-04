@@ -54,14 +54,15 @@ class AccesDatasMatiere {
         return $result;
     }
 
-    public function modifMatiere($id,$nom,$code,$prix,$type,$laize){
-        $res=$this->pdo->prepare("UPDATE matieres SET nom_matiere=:nom, code_matiere=:code, prix_mcarre=:prix,type_matiere=:type_mat,laizes=:laize WHERE Id_matiere=:id");
+    public function modifMatiere($id,$nom,$code,$prix,$type,$laize,$marges){
+        $res=$this->pdo->prepare("UPDATE matieres SET nom_matiere=:nom, code_matiere=:code, prix_mcarre=:prix,type_matiere=:type_mat,laizes=:laize, marges=:marges WHERE Id_matiere=:id");
         $res->bindParam(":id",$id);
         $res->bindParam(":nom",$nom);
         $res->bindParam(":code",$code);
         $res->bindParam(":prix",$prix);
         $res->bindParam(":type_mat",$type);
         $res->bindParam(":laize",$laize);
+        $res->bindParam(":marges",$marges);
         $res->execute();
     }
 
@@ -86,13 +87,14 @@ class AccesDatasMatiere {
         $res->execute();
     }
 
-    public function addMatiere($nom,$code,$prix,$type,$laize){
-        $res=$this->pdo->prepare("INSERT INTO matieres (`Id_matiere`, `nom_matiere`, `code_matiere`, `prix_mcarre`, `type_matiere`, `laizes`) VALUES (NULL, :nom, :code, :prix, :type_mat, :laize);");
+    public function addMatiere($nom,$code,$prix,$type,$laize,$marges){
+        $res=$this->pdo->prepare("INSERT INTO matieres (`Id_matiere`, `nom_matiere`, `code_matiere`, `prix_mcarre`, `type_matiere`, `laizes`, `marges`) VALUES (NULL, :nom, :code, :prix, :type_mat, :laize, :marges);");
         $res->bindParam(":nom",$nom);
         $res->bindParam(":code",$code);
         $res->bindParam(":prix",$prix);
         $res->bindParam(":type_mat",$type);
         $res->bindParam(":laize",$laize);
+        $res->bindParam(":marges",$marges);
         $res->execute();
     }
 

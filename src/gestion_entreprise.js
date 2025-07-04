@@ -9,9 +9,15 @@ let clientSelect
 let selectEntreprise = document.querySelector('.selectEntreprise')
 let selectClient = document.querySelector('.selectClient')
 let action
+let idDevis
+let btnRefresh = document.querySelector('.btnRefresh')
+btnRefresh.addEventListener('click', () => {
+    alert('Les données concernant les entreprises et les clients ont été rafraichies.')
+    fetchClientsData()
+})
 window.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search)
-    const idDevis = params.get('id')
+    idDevis = params.get('id')
     action = params.get('modif')
     entrepriseSelect = new Choices('.selectEntreprise', {
         searchEnabled: true,
@@ -20,50 +26,14 @@ window.addEventListener('DOMContentLoaded', () => {
         placeholderValue: 'Sélectionner une entreprise',
     })
 
-    fetch('../api/clients.php')
-        .then((response) => response.json())
-        .then((datasFetch) => {
-            datasEntreprises = datasFetch.entreprises
-            console.log('Entreprises : ', datasEntreprises)
-            datasClients = datasFetch.clients
-            datasAdressesPrincipales = datasFetch.adressesPrincipales
-            console.log(datasAdressesPrincipales)
-            datasEntreprises.sort((a, b) => a.nom_entreprise.localeCompare(b.nom_entreprise))
-            datasClients.sort((a, b) => a.priorite - b.priorite)
-            clientSelect = new Choices(selectClient, {
-                searchEnabled: true,
-                itemSelectText: '',
-                shouldSort: false,
-                placeholderValue: 'Sélectionner un client',
-            })
-            clientSelect.enable()
-            entrepriseSelect.setChoices([
-                { value: 'null', label: '-----------' },
-                ...datasEntreprises.map((e) => {
-                    const adresse = datasAdressesPrincipales.find((adresse) => adresse.Id_entreprise === e.Id_entreprise)
-                    const clients = datasClients.filter((client) => client.entreprise_Id === e.Id_entreprise)
+    clientSelect = new Choices('.selectClient', {
+        searchEnabled: true,
+        itemSelectText: '',
+        shouldSort: true,
+        placeholderValue: 'Sélectionner un client',
+    })
 
-                    let label = `${e.nom_entreprise} - ${adresse?.ville} (${adresse?.code_postal})`
-
-                    if (clients.length === 1) {
-                        const client = clients[0]
-                        label += ` | ${client.nom_prenom}`
-                    }
-
-                    return {
-                        value: e.Id_entreprise,
-                        label: label,
-                    }
-                }),
-            ])
-            if (idDevis && action === 'modif') {
-                devisLoaded.then(() => {
-                    //Fonction qui regénère le client et l'entreprise
-                    handleEntrepriseWithDevis()
-                })
-            }
-        })
-        .catch((error) => console.error('Erreur lors du chargement des données :', error))
+    fetchClientsData()
 })
 
 let btnAddClient = document.querySelector('.add_client')
@@ -109,6 +79,8 @@ selectEntreprise.addEventListener('change', () => {
         return
     }
     //Si plus d'un client dans l'entreprise, on met à l'affichage la barre déroulante pour les clients de l'entreprise
+    //Valeur par défaut, force l'utilisateur à saisir un client
+    idClient = -2
     document.querySelector('.hiddenClient').style.display = 'flex'
     clientSelect.clearChoices()
     clientSelect.setChoices(
@@ -149,10 +121,59 @@ export function handleEntrepriseWithDevis() {
         // Ce code s'exécutera après que le change ait été géré
         document.querySelector('.hiddenClient').style.display = 'flex'
     }
-
-    const idClient = datasDevis.client_id
+    //On redéfinit l'id qui sera récupéré dans les autres scripts
+    idClient = datasDevis.client_id
     console.log('id trouvé : ', idClient)
     clientSelect.setChoiceByValue(idClient)
     selectClient.value = idClient
     console.log(clientSelect.value)
+}
+
+function fetchClientsData() {
+    fetch('../api/clients.php')
+        .then((response) => response.json())
+        .then((datasFetch) => {
+            datasEntreprises = datasFetch.entreprises
+            datasClients = datasFetch.clients
+            datasAdressesPrincipales = datasFetch.adressesPrincipales
+
+            datasEntreprises.sort((a, b) => a.nom_entreprise.localeCompare(b.nom_entreprise))
+            datasClients.sort((a, b) => a.priorite - b.priorite)
+
+            // Re-initialiser les selects
+            entrepriseSelect.clearChoices()
+            entrepriseSelect.setChoices([
+                { value: 'null', label: '-----------' },
+                ...datasEntreprises.map((e) => {
+                    const adresse = datasAdressesPrincipales.find((adresse) => adresse.Id_entreprise === e.Id_entreprise)
+                    const clients = datasClients.filter((client) => client.entreprise_Id === e.Id_entreprise)
+
+                    let label = `${e.nom_entreprise} - ${adresse?.ville} (${adresse?.code_postal})`
+
+                    if (clients.length === 1) {
+                        const client = clients[0]
+                        label += ` | ${client.nom_prenom}`
+                    }
+
+                    return {
+                        value: e.Id_entreprise,
+                        label: label,
+                    }
+                }),
+            ])
+
+            clientSelect.clearChoices()
+            clientSelect.enable()
+
+            const params = new URLSearchParams(window.location.search)
+            const idDevis = params.get('id')
+            const action = params.get('modif')
+
+            if (idDevis && action === 'modif') {
+                devisLoaded.then(() => {
+                    handleEntrepriseWithDevis()
+                })
+            }
+        })
+        .catch((error) => console.error('Erreur lors du chargement des données :', error))
 }

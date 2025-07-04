@@ -1,4 +1,6 @@
+import { refreshApi, createAlertError, createAlertInfos, fetchAdresses, fetchContacts } from './voir_details_entreprise.js'
 //Variables pour adresses
+const PopUpAdresse = document.querySelector('.popupAdresse')
 let maxPrioriteAdresse
 let datasAdresses = []
 let idEntreprise
@@ -6,12 +8,11 @@ let idEntreprise
 window.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search)
     idEntreprise = params.get('id')
-
+    datasAdresses
     if (!idEntreprise) {
         console.error('Aucun identifiant fourni')
         return
     }
-
     // Récupération des éléments des tables adresses et entreprises
     fetch(`../api/details_entreprise.php?id=${idEntreprise}`)
         .then((response) => response.json())
@@ -19,7 +20,7 @@ window.addEventListener('DOMContentLoaded', () => {
             datasAdresses = datasFetch.adressesSecondaires
 
             if (datasAdresses.length > 0) {
-                maxPrioriteAdresse = Math.max(...datasAdresses.map((a) => parseInt(a.priorite_adresse)))
+                maxPrioriteAdresse = Math.max(...datasAdresses.map((a) => parseInt(a.priorite_adresse + 1)))
             } else {
                 maxPrioriteAdresse = 0 // Valeur par défaut si le tableau est vide
             }
@@ -41,6 +42,12 @@ const inputRueAdresse = document.querySelector('#rueAdresse')
 const inputCodePostalAdresse = document.querySelector('#codePostalAdresse')
 const inputVilleAdresse = document.querySelector('#villeAdresse')
 const inputPrioriteAdresse = document.querySelector('#prioriteAdresse')
+inputPrioriteAdresse.addEventListener('keydown', function (e) {
+    const allowedKeys = ['ArrowUp', 'ArrowDown', 'Tab', 'Shift', 'Control']
+    if (!allowedKeys.includes(e.key)) {
+        e.preventDefault()
+    }
+})
 
 // Ferme la popup adresse
 btnFermerAdresse.addEventListener('click', () => {
@@ -58,17 +65,15 @@ function clearPopupAdresseInputs() {
 }
 
 // Ajout adresse secondaire (via URL)
-btnAjouterAdresse.addEventListener('click', () => {
+btnAjouterAdresse.addEventListener('click', async () => {
     const rueVal = inputRueAdresse.value.trim()
     const codePostalVal = inputCodePostalAdresse.value.trim()
     const villeVal = inputVilleAdresse.value.trim()
     let prioriteVal = inputPrioriteAdresse.value.trim()
 
-    // Si le champ priorité est vide => on attribue "0"
     if (prioriteVal === '') {
         prioriteVal = '0'
     } else {
-        // Si ce n'est pas un nombre valide
         if (isNaN(prioriteVal)) {
             alert('La priorité doit être un nombre')
             return
@@ -80,29 +85,56 @@ btnAjouterAdresse.addEventListener('click', () => {
             return
         }
 
-        prioriteVal = intPriorite.toString() // Nettoie bien
+        prioriteVal = intPriorite.toString()
     }
 
     const urlParams = new URLSearchParams(window.location.search)
     const idEntrepriseParam = urlParams.get('id')
 
-    // Vérification des champs obligatoires
     if (!rueVal || !codePostalVal || !villeVal) {
         alert('Veuillez remplir tous les champs (rue, code postal, ville).')
         return
     }
 
-    // Validation du code postal
     if (!codePostalRegex.test(codePostalVal)) {
         alert('Le code postal doit comporter exactement 5 chiffres.')
         return
     }
 
-    // Construction de l'URL
-    const url = `../app/app.php?action=ajouter_adresseS&rue=${encodeURIComponent(rueVal)}&codePostal=${encodeURIComponent(
-        codePostalVal
-    )}&ville=${encodeURIComponent(villeVal)}&priorite=${encodeURIComponent(prioriteVal)}&id=${encodeURIComponent(idEntrepriseParam)}`
+    const params = new URLSearchParams({
+        rue: rueVal,
+        codePostal: codePostalVal,
+        ville: villeVal,
+        priorite: prioriteVal,
+        id: idEntrepriseParam,
+    })
 
-    console.log(url)
-    window.location.href = url
+    try {
+        const response = await fetch('../app/app.php?action=ajouter_adresseS', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: params.toString(),
+        })
+
+        const data = await response.json()
+        console.log(data)
+
+        if (data.status === 'success') {
+            createAlertInfos('Adresse ajoutée avec succès !')
+            await refreshApi()
+            fetchAdresses()
+            fetchContacts()
+            PopUpAdresse.style.display = 'none'
+            clearPopupAdresseInputs()
+        } else {
+            createAlertError(data.message)
+        }
+    } catch (error) {
+        console.log(error)
+        createAlertError(error)
+        PopUpAdresse.style.display = 'none'
+        clearPopupAdresseInputs()
+    }
 })

@@ -4,6 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Fiche entreprise</title>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <link rel="stylesheet" href="../style/details.css" />
     </head>
     <body>
@@ -24,28 +25,24 @@
             <div class="form-group">
                 <label for="nomE">Nom :</label>
                 <input type="text" id="nomE" />
-                <button class="modifier-nomE">Modifier</button>
             </div>
 
             <!-- Groupe Mail -->
             <div class="form-group">
                 <label for="email">Mail :</label>
                 <input type="email" id="email" />
-                <button class="modifier-mail">Modifier</button>
             </div>
 
             <!-- Groupe Téléphone -->
             <div class="form-group">
                 <label for="telephone">Téléphone :</label>
                 <input type="tel" id="telephone" />
-                <button class="modifier-telephone">Modifier</button>
             </div>
 
             <!-- Groupe SIRET -->
             <div class="form-group">
                 <label for="siret">SIRET :</label>
                 <input type="text" id="siret" />
-                <button class="modifier-siret">Modifier</button>
             </div>
 
             <!-- Groupe Modalités de paiement -->
@@ -54,7 +51,6 @@
                 <select name="paiementE" id="paiementE">
                     <!-- Rajout dynamique-->
                 </select>
-                <button class="modifier-paiementE">Modifier</button>
             </div>
             <h3>Adresse principale</h3>
             <!-- Groupe Adresse (en ligne) -->
@@ -71,7 +67,6 @@
                     <label for="ville">Ville :</label>
                     <input type="text" id="ville" />
                 </div>
-                <button class="modifAdresseP">Modifier</button>
             </div>
             <h3>Contact principal</h3>
             <!-- Groupe Contact principal (en ligne) -->
@@ -98,7 +93,9 @@
                         <!-- Géré dynamiquement -->
                     </select>
                 </div>
-                <button class="modifClientP">Modifier</button>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: center; padding: 20px 0">
+                <button style="padding: 20px" class="modifInfosG">Modifier les informations</button>
             </div>
             <div style="display: flex; justify-content: space-between">
                 <h3>Adresse(s) secondaire(s)</h3>
@@ -163,6 +160,7 @@
                     <!-- Les données seront insérées ici dynamiquement -->
                 </tbody>
             </table>
+            <div style="display: flex; justify-content: center; align-items: center; margin: 20px 0; gap: 20px" class="pagination"></div>
         </section>
         <!-- ****************************** PopUp Ajout Client ****************************************** -->
         <div class="popup-container popupClient hidden">
@@ -178,11 +176,11 @@
                         <input type="email" id="mailClient" />
                     </div>
                     <div class="form-group">
-                        <label for="fixeClient">Téléphone fixe :</label>
+                        <label for="fixeClient">Téléphone fixe (optionnel):</label>
                         <input type="text" id="fixeClient" />
                     </div>
                     <div class="form-group">
-                        <label for="telClient">Téléphone portable :</label>
+                        <label for="telClient">Téléphone portable (optionnel):</label>
                         <input type="tel" id="telClient" />
                     </div>
                     <div class="form-group">

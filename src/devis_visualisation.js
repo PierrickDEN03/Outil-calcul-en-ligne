@@ -4,44 +4,20 @@ let tabComplements = []
 const btnPDF = document.querySelector('.btnGenererPDF')
 
 btnPDF.addEventListener('click', () => {
-    // Cible l'élément à convertir en PDF
     const element = document.querySelector('.PDF_content')
 
-    // Sauvegarde du style original
-    const originalStyle = element.style.cssText
-
-    // Force une hauteur minimale pour assurer que le footer soit en bas
-    // Hauteur approximative d'une page A4 en pixels (à 96 DPI)
-    const pageHeight = 1045 // Environ 297mm en pixels
-    element.style.minHeight = `${pageHeight}px`
-    element.style.display = 'flex'
-    element.style.flexDirection = 'column'
-
-    // S'assurer que le content-body prend l'espace disponible
-    const contentBody = element.querySelector('.content-body')
-    if (contentBody) {
-        contentBody.style.flex = '1'
-        contentBody.style.display = 'flex'
-        contentBody.style.flexDirection = 'column'
-    }
-
-    // Forcer le footer à rester en bas
-    const footer = element.querySelector('.footer')
-    if (footer) {
-        footer.style.marginTop = 'auto'
-    }
-
-    // Utilise html2pdf pour générer et télécharger le PDF
+    // Version simple - juste un petit ajustement pour l'espace
     html2pdf()
         .from(element)
         .set({
-            margin: [10, 10, 10, 10], // marges en mm [top, left, bottom, right]
+            margin: [3, 3, 3, 3],
             filename: `${datasDevis?.enregistrement_nom || 'devis'}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: {
-                scale: 2,
+                scale: 1.5,
                 useCORS: true,
                 letterRendering: true,
+                backgroundColor: '#ffffff',
             },
             jsPDF: {
                 unit: 'mm',
@@ -51,26 +27,8 @@ btnPDF.addEventListener('click', () => {
             },
         })
         .save()
-        .then(() => {
-            // Restaure le style original après génération
-            element.style.cssText = originalStyle
-            if (contentBody) {
-                contentBody.style.cssText = ''
-            }
-            if (footer) {
-                footer.style.cssText = ''
-            }
-        })
         .catch((error) => {
             console.error('Erreur lors de la génération du PDF:', error)
-            // Restaure le style même en cas d'erreur
-            element.style.cssText = originalStyle
-            if (contentBody) {
-                contentBody.style.cssText = ''
-            }
-            if (footer) {
-                footer.style.cssText = ''
-            }
         })
 })
 
@@ -88,7 +46,8 @@ window.addEventListener('DOMContentLoaded', () => {
         .then((response) => response.json())
         .then((datasFetch) => {
             console.log(datasFetch)
-            datasDevis = datasFetch.infos[0]
+            datasDevis = datasFetch.infos
+            console.log('datas Devis : ', datasDevis)
             tabComplements = handleComplements()
             console.log('tabCompléments : ', tabComplements)
             //Remplir tous les champs du devis
@@ -102,7 +61,7 @@ function remplirDevis() {
     //Pour le header
     document.querySelector('.ref_header').innerHTML = datasDevis.enregistrement_nom
     document.querySelector('.telephone_header').innerHTML = datasDevis.client_telephone
-    document.querySelector('.mail_header').innerHTML = datasDevis.entreprise_mail
+    document.querySelector('.mail_header').innerHTML = datasDevis.client_mail
     document.querySelector('.nomE_header').innerHTML = datasDevis.entreprise_nom.toUpperCase()
     document.querySelector('.nomC_header').innerHTML = datasDevis.client_nom_prenom.toUpperCase()
     document.querySelector('.adresse_header').innerHTML = datasDevis.rue.toUpperCase()

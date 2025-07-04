@@ -33,12 +33,28 @@ body {
     background-color: white;
     max-width: 800px;
     margin: 0 auto;
-    padding: 40px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     font-size: 12px;
     line-height: 1.4;
-    min-height: 800px; /* Hauteur réduite pour éviter une 2e page */
-    position: relative;
+    min-height: 800px;
+    overflow: visible;
+}
+
+/* Header avec image en arrière-plan */
+.header {
+    padding: 40px;
+    padding-top: 20px;
+    padding-bottom: 0px;
+}
+
+.header_image {
+    background-image: url('../img/headerfacture.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 100%;
+    height: 150px;
+    display: block;
 }
 
 .company-details {
@@ -47,10 +63,20 @@ body {
     justify-content: space-between;
     text-align: left;
     font-style: italic;
+    padding-top: 20px;
 }
 
 .nomE_header {
     font-weight: bold;
+}
+
+/* Corps du contenu - prend l'espace disponible */
+.content-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0 40px;
+    padding-bottom: 20px; /* Retour au padding normal */
 }
 
 .date_devis_message {
@@ -60,7 +86,7 @@ body {
 }
 
 .quote-info {
-    margin: 50px 0;
+    margin: 30px 0;
 }
 
 /* Message d'introduction */
@@ -132,28 +158,36 @@ body {
 
 /* Instructions de commande */
 .order-instructions {
-    margin-bottom: 25px;
+    margin-bottom: 20px; /* Espace minimal après les instructions */
     font-size: 12px;
     text-align: justify;
     font-style: italic;
 }
 
-/* Corps du contenu - prend l'espace disponible */
-.content-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Pied de page - reste en bas */
+/* Footer avec image en bas */
 .footer {
     border-top: 1px solid #ddd;
-    padding-top: 15px;
-    margin-top: auto; /* Pousse le footer vers le bas */
+    padding: 40px;
+    padding-top: 20px; /* Réduction à la moitié (40px -> 20px) */
+    padding-bottom: 20px;
+    flex-shrink: 0;
+}
+
+.footer-content {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    flex-shrink: 0; /* Empêche le footer de se rétrécir */
+    margin-bottom: 0; /* Aucun espace avant l'image footer */
+}
+
+.footer_image {
+    background-image: url('../img/footerfacture.jpg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 100%;
+    height: 150px;
+    display: block;
 }
 
 .footer-page {
@@ -175,21 +209,70 @@ body {
 
     .PDF_content {
         box-shadow: none;
-        padding: 20px;
         margin: 0;
         max-width: none;
         width: 100%;
-        min-height: 100vh;
+        min-height: auto;
         page-break-inside: avoid;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .header {
+        padding: 20px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    .content-body {
+        padding: 0 20px;
+        flex: 1;
     }
 
     .footer {
-        position: absolute;
-        bottom: 20px;
-        left: 20px;
-        right: 20px;
-        width: calc(100% - 40px);
+        padding: 20px;
+        padding-top: 40px; /* Padding pour le PDF */
+        padding-bottom: 20px;
     }
+
+    .footer-content {
+        margin-bottom: 10px;
+    }
+
+    .footer_image {
+        height: 120px; /* Réduction légère pour le PDF */
+    }
+
+    .header_image {
+        height: 120px; /* Réduction légère pour le PDF */
+    }
+}
+
+/* Styles spécifiques pour html2pdf */
+.html2pdf-generating .PDF_content {
+    display: block !important; /* Pas de flexbox pour html2pdf */
+    min-height: auto !important;
+    height: auto !important;
+}
+
+.html2pdf-generating .content-body {
+    display: block !important; /* Pas de flexbox */
+    flex: none !important;
+    padding-bottom: 40px !important; /* Réduction du padding */
+}
+
+.html2pdf-generating .footer {
+    display: block !important;
+    padding-top: 20px !important; /* Padding encore plus réduit */
+    margin-top: 0 !important;
+}
+
+.html2pdf-generating .footer_image {
+    height: 100px !important; /* Image footer plus petite pour html2pdf */
+}
+
+.html2pdf-generating .footer-content {
+    margin-bottom: 15px !important; /* Moins d'espace avant l'image */
 }
 
 /* Classe utilitaire pour forcer le footer en bas pendant la génération PDF */

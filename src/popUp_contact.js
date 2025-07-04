@@ -1,8 +1,11 @@
+import { refreshApi, createAlertError, createAlertInfos, fetchAdresses, fetchContacts } from './voir_details_entreprise.js'
+
 // Variables
 let maxPriorite
 let datasClients = []
 let id
 let datasAdresses = []
+const PopUpContact = document.querySelector('.popupClient')
 
 window.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search)
@@ -20,7 +23,7 @@ window.addEventListener('DOMContentLoaded', () => {
             datasClients = datasFetch.clients
             datasAdresses = [...datasFetch.adressePrincipale, ...datasFetch.adressesSecondaires]
             if (datasClients.length > 0) {
-                maxPriorite = Math.max(...datasClients.map((c) => parseInt(c.priorite)))
+                maxPriorite = Math.max(...datasClients.map((c) => parseInt(c.priorite + 1)))
             } else {
                 maxPriorite = 0 // Valeur par défaut si le tableau est vide
             }
@@ -89,7 +92,7 @@ function clearPopupInputs() {
 }
 
 // Ajout client secondaire (via URL)
-btnAjouter.addEventListener('click', () => {
+btnAjouter.addEventListener('click', async () => {
     const nomVal = inputNomPrenom.value.trim()
     const mailVal = inputMail.value.trim()
     const telVal = inputTel.value.trim().replace(/\s/g, '')
@@ -119,8 +122,8 @@ btnAjouter.addEventListener('click', () => {
     const idEntreprise = urlParams.get('id')
 
     // Vérif champs
-    if (!nomVal || !mailVal || !telVal || !fixeVal) {
-        alert('Veuillez remplir tous les champs (nom, e-mail, téléphone, fixe).')
+    if (!nomVal || !mailVal) {
+        alert('Veuillez renseigner un nom et une adresse mail.')
         return
     }
 
@@ -129,20 +132,52 @@ btnAjouter.addEventListener('click', () => {
         return
     }
 
-    if (!telRegex.test(telVal)) {
+    if (telVal && !telRegex.test(telVal)) {
         alert('Le numéro de téléphone portable doit comporter exactement 10 chiffres.')
         return
     }
 
-    if (!telRegex.test(fixeVal)) {
+    if (fixeVal && !telRegex.test(fixeVal)) {
         alert('Le numéro de téléphone fixe doit comporter exactement 10 chiffres.')
         return
     }
 
-    const url = `../app/app.php?action=ajouter_clientS&nom=${encodeURIComponent(nomVal)}&mail=${encodeURIComponent(
-        mailVal
-    )}&tel=${encodeURIComponent(telVal)}&fixe=${encodeURIComponent(fixeVal)}&adresseC=${encodeURIComponent(
-        document.getElementById('adresse').value
-    )}&priorite=${encodeURIComponent(prioriteVal)}&id=${encodeURIComponent(idEntreprise)}`
-    window.location.href = url
+    const params = new URLSearchParams({
+        nom: nomVal,
+        mail: mailVal,
+        tel: telVal,
+        fixe: fixeVal,
+        adresseC: document.getElementById('adresse').value,
+        priorite: prioriteVal,
+        id: idEntreprise,
+    })
+
+    try {
+        const response = await fetch('../app/app.php?action=ajouter_clientS', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: params.toString(),
+        })
+
+        const data = await response.json()
+        console.log(data)
+
+        if (data.status === 'success') {
+            createAlertInfos('Contact ajouté avec succès ! ')
+            await refreshApi()
+            fetchAdresses()
+            fetchContacts()
+            PopUpContact.style.display = 'none'
+            clearPopupInputs()
+        } else {
+            createAlertError(data.message)
+        }
+    } catch (error) {
+        console.log(error)
+        createAlertError(error)
+        PopUpContact.style.display = 'none'
+        clearPopupInputs()
+    }
 })

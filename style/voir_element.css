@@ -140,7 +140,9 @@ button:hover {
 .form-group {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: 15px;
+    gap: 30px;
 }
 
 .form-group label {
@@ -162,6 +164,10 @@ button:hover {
 .form-group-inline {
     display: flex;
     gap: 30px;
+}
+
+.pagination-btn:focus {
+    background-color: blue;
 }
 
 /* Popups */
@@ -190,17 +196,7 @@ button:hover {
     background: white;
     padding: 30px;
     border-radius: 10px;
-    width: 450px;
-    max-width: 90%;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-}
-
-.popup-content {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    width: 450px;
-    max-width: 90%;
+    width: 70wh;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
@@ -229,7 +225,7 @@ button:hover {
 
 /* Styles pour la popup */
 .popup-ajout-entreprise-client .popup-content {
-    max-width: 600px;
+    min-width: 40vw;
     max-height: 80vh;
     overflow-y: auto;
 }

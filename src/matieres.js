@@ -3,6 +3,7 @@ import { getDatasDesignations, verifDesignations, getTotalPrixDesignation } from
 import { datasDevis as datasDevisMat, devisLoaded } from './getDevisWithId.js'
 
 // *************************************** Définition des variables
+let coutTotal
 let datasMatieres = []
 let datasDegressif = []
 let datasFrais = []
@@ -12,6 +13,7 @@ let fraisLancement
 let globalPrixDecoupe
 let idData
 let session
+let matiereChoices
 const spanFraisFixe = document.querySelector('.fraix_fixe')
 const spanPrixDecoupe = document.querySelector('.prix_decoupe_span')
 let resultats = []
@@ -89,44 +91,48 @@ btnCalcul.addEventListener('click', () => {
         selectLamination.value,
         getTotalPrixDesignation()
     )
-    console.log('inversion : ', resultats[0])
-    spanCoutTotal.innerHTML = resultats[1]
 })
 
 const largeur = document.querySelector('.input-largeur')
 largeur.addEventListener('input', () => {
     btnValidation.disabled = true
     inputNom.disabled = true
+    pourcentageInput.disabled = true
 })
 
 const longueur = document.querySelector('.input-longueur')
 longueur.addEventListener('input', () => {
     btnValidation.disabled = true
     inputNom.disabled = true
+    pourcentageInput.disabled = true
 })
 
 const quantite = document.querySelector('.input-qte')
 quantite.addEventListener('input', () => {
     btnValidation.disabled = true
     inputNom.disabled = true
+    pourcentageInput.disabled = true
 })
 
 const selectMatiere = document.querySelector('.select-matiere')
 selectMatiere.addEventListener('change', () => {
     btnValidation.disabled = true
     inputNom.disabled = true
+    pourcentageInput.disabled = true
 })
 
 const selectLamination = document.querySelector('.select-lamination')
 selectLamination.addEventListener('change', () => {
     btnValidation.disabled = true
     inputNom.disabled = true
+    pourcentageInput.disabled = true
 })
 
 const espacePose = document.querySelector('.input-espace')
 espacePose.addEventListener('input', () => {
     btnValidation.disabled = true
     inputNom.disabled = true
+    pourcentageInput.disabled = true
     if (espacePose.value === '') {
         espacePose.value = 0
     }
@@ -138,6 +144,7 @@ checkDecoupe.addEventListener('change', (e) => {
     console.log('change')
     btnValidation.disabled = true
     inputNom.disabled = true
+    pourcentageInput.disabled = true
     if (e.target.checked === true) {
         checkDecoupe_value = true
     } else {
@@ -155,6 +162,18 @@ checkDecoupe.addEventListener('keydown', (event) => {
         const changeEvent = new Event('change')
         checkDecoupe.dispatchEvent(changeEvent)
     }
+})
+
+const pourcentageInput = document.querySelector('.pourcentageInput')
+pourcentageInput.disabled = true
+pourcentageInput.addEventListener('input', () => {
+    if (isNaN(pourcentageInput.value) || parseFloat(pourcentageInput.value) < 0 || pourcentageInput.value === '') {
+        pourcentageInput.value = 0
+    }
+    coutTotal = spanCoutTotal.textContent.replace('€', '')
+    const pourcentage = 1 + parseInt(pourcentageInput.value) / 100
+    const prix = coutTotal * pourcentage
+    spanCoutTotal.innerHTML = `${prix.toFixed(2)}€`
 })
 
 const btnValidation = document.querySelector('.btnValiderDevis')
@@ -186,16 +205,66 @@ inputNom.addEventListener('change', () => {
 
 //Ajoute dynamiquement les types de matiere dans le select
 function addSelectMatiereType(datasMatieres) {
-    //On récupère les types de matiere
     const select_type = document.querySelector('.select-matiere')
-    datasMatieres.forEach((matiere) => {
-        //On les insère dans la balise select
-        //Selecteur pour le type de matiere
-        const option = document.createElement('option')
-        option.value = matiere.Id_matiere
-        option.innerHTML = `${matiere.nom_matiere} - ${matiere.laizes}cm (${matiere.prix_mcarre}€/m²)`
-        select_type.appendChild(option)
+    select_type.innerHTML = ''
+
+    const options = [
+        {
+            value: '',
+            label: '-----------',
+            disabled: true,
+            selected: true,
+            customProperties: { prix: '' },
+        },
+    ]
+
+    options.push(
+        ...datasMatieres.map((matiere) => ({
+            value: matiere.Id_matiere,
+            label: `${matiere.nom_matiere} - Laize ${matiere.laizes}cm`,
+            customProperties: {
+                prix: `(${matiere.prix_mcarre}€/m²)`,
+            },
+        }))
+    )
+
+    // Création de l'instance Choices
+    matiereChoices = new Choices(select_type, {
+        removeItemButton: false,
+        searchEnabled: true,
+        itemSelectText: '',
+        shouldSort: false,
+
+        callbackOnCreateTemplates: function (template) {
+            return {
+                item: (classNames, data) => {
+                    const prix = data.customProperties?.prix
+                    return template(`
+                        <div class="${classNames.item} ${
+                        data.highlighted ? classNames.highlightedState : classNames.itemSelectable
+                    }" data-item data-id="${data.id}" data-value="${data.value}" ${data.active ? 'aria-selected="true"' : ''} ${
+                        data.disabled ? 'aria-disabled="true"' : ''
+                    }>
+                            ${data.label}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#999;font-style:italic">${prix ?? ''}</span>
+                        </div>
+                    `)
+                },
+                choice: (classNames, data) => {
+                    const prix = data.customProperties?.prix
+                    return template(`
+                        <div class="${classNames.item} ${classNames.itemChoice}" data-select-text="" data-choice ${
+                        data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'
+                    } data-id="${data.id}" data-value="${data.value}" style="margin-bottom:15px; margin-left:10px">
+                            ${data.label}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#999;font-style:italic">${prix ?? ''}</span>
+                        </div>
+                    `)
+                },
+            }
+        },
     })
+
+    // Injection des options
+    matiereChoices.setChoices(options, 'value', 'label', true)
 }
 
 //Ajoute dynamiquement les types de lamination dans le select
@@ -215,7 +284,7 @@ function addSelectLamination(datasLamination) {
 function getCoefDegressif(datasDegressif, surface) {
     if (!Array.isArray(datasDegressif) || datasDegressif.length === 0) {
         console.warn('Données dégressives invalides ou vides.')
-        return null
+        return 1
     }
     let trancheMax = null
     for (const tranche of datasDegressif) {
@@ -239,7 +308,7 @@ function getCoefDegressif(datasDegressif, surface) {
         return parseFloat(trancheMax.prix_surface)
     }
     console.warn('⚠️ Aucune tranche applicable trouvée pour  surface =', surface)
-    return null
+    return 1
 }
 
 function updateCalcul(
@@ -255,108 +324,133 @@ function updateCalcul(
     lamination,
     prix_designations
 ) {
-    console.log('------------------- CALCUL NORMAL -------------------------------')
-    const cout1 = calculFrais(
-        fraisLancement,
-        datasMatieres,
-        datasDegressif,
-        largeur,
-        longueur,
-        quantite,
-        id_matiere,
-        selectDecoupe,
-        espacePose,
-        lamination,
-        prix_designations
-    )
-    console.log('------------------- CALCUL INVERSE LONGUEUR LARGEUR-------------------------------')
-    const cout2 = calculFrais(
-        fraisLancement,
-        datasMatieres,
-        datasDegressif,
-        longueur,
-        largeur,
-        quantite,
-        id_matiere,
-        selectDecoupe,
-        espacePose,
-        lamination,
-        prix_designations
-    )
+    console.clear()
+    if (!largeur || !longueur) {
+        alert('Veuillez renseigner les dimensions')
+        return
+    }
+    if (!quantite || isNaN(quantite) || quantite <= 0) {
+        alert('Veuillez renseigner une quantité')
+        return
+    }
+    if (id_matiere === 'null') {
+        alert('Veuillez renseigner une matière')
+        return
+    }
+
+    //Détcetion de la matière
+    const matiere = datasMatieres.find((m) => m.Id_matiere === parseInt(id_matiere))
+    if (!matiere) {
+        alert('Matière introuvable.')
+        return
+    }
+
+    //Si découpe alors 2cm de chaque côté sinon 1cm de chaque côté (1cm de chaque coté + (ou pas) 2cm si découpe activées)
+    let marge = selectDecoupe === true ? 2 : 0
+    marge += matiere.marges
+    console.log('MARGES : ', marge)
+    const format_utile = matiere.laizes - 2 * marge
+
+    if (longueur > format_utile && largeur > format_utile) {
+        alert('Les dimensions renseignées sont trop grandes.')
+        return
+    }
+    let cout1
+    let cout2
+    if (largeur <= format_utile) {
+        console.log('------------------- CALCUL NORMAL -------------------------------')
+        cout1 = calculFrais(
+            fraisLancement,
+            matiere,
+            datasDegressif,
+            largeur,
+            longueur,
+            quantite,
+            selectDecoupe,
+            format_utile,
+            espacePose,
+            lamination,
+            prix_designations
+        )
+    } else {
+        cout1 = null
+    }
+    if (longueur <= format_utile) {
+        console.log('------------------- CALCUL INVERSE LONGUEUR LARGEUR-------------------------------')
+        cout2 = calculFrais(
+            fraisLancement,
+            matiere,
+            datasDegressif,
+            longueur,
+            largeur,
+            quantite,
+            selectDecoupe,
+            format_utile,
+            espacePose,
+            lamination,
+            prix_designations
+        )
+    } else {
+        cout2 = null
+    }
+
     if (cout1 === null && cout2 === null) {
         console.log('DIMENSIONS INCORRECTES POUR LES DEUX')
-        return ['undefined', 'Veuillez renseigner tous les champs']
+        alert('Calcul impossible à effectuer. Veuillez renseigner la pertinence des champs.')
+        console.log('longueur : ', longueur)
+        console.log('largeur : ', largeur)
+        console.log('format utile : ', format_utile)
+        return ['undefined', '']
     }
     if (cout1 === null && !isNaN(cout2)) {
         console.log(['inversé', `${cout2}€`])
-        btnValidation.disabled = false
-        inputNom.disabled = false
-        return ['inversé', `${cout2}€`]
-    }
-    if (!isNaN(cout1) && cout2 === null) {
+        resultats = ['inversé', `${cout2}€`]
+    } else if (!isNaN(cout1) && cout2 === null) {
         console.log(['normal', `${cout1}€`])
-        btnValidation.disabled = false
-        inputNom.disabled = false
-        return ['normal', `${cout1}€`]
+        resultats = ['normal', `${cout1}€`]
+    } else {
+        //Ou sinon on compare et conserve le minimum des deux calculs
+        console.log('Cout 1 : ', cout1)
+        console.log('Cout 2 : ', cout2)
+        resultats = cout1 <= cout2 ? ['normal', `${cout1}€`] : ['inversé', `${cout2}€`]
+        console.log(resultats)
     }
-    //Ou sinon on compare et conserve le minimum des deux calculs
-    console.log('Cout 1 : ', cout1)
-    console.log('Cout 2 : ', cout2)
     btnValidation.disabled = false
     inputNom.disabled = false
-    return cout1 <= cout2 ? ['normal', `${cout1}€`] : ['inversé', `${cout2}€`]
+    pourcentageInput.disabled = false
+    pourcentageInput.value = 0
+    coutTotal = resultats[1]
+    spanCoutTotal.innerHTML = coutTotal
+    return resultats
 }
 
 function calculFrais(
     fraisLancement,
-    datasMatieres,
+    matiere,
     datasDegressif,
     largeur,
     longueur,
     quantite,
-    id_matiere,
     selectDecoupe,
+    format_utile,
     espacePose,
     laminationId,
     prix_designations
 ) {
-    if (!largeur || !longueur) {
-        console.log('Veuillez renseigner les dimensions')
-        return null
-    }
-    if (!quantite || isNaN(quantite) || quantite <= 0) {
-        console.log('Veuillez renseigner une quantité')
-        return null
-    }
-    if (id_matiere === 'null') {
-        console.log('Veuillez renseigner une matière')
-        return null
-    }
-
-    //Si découpe alors 4cm de chaque côté sinon 1cm de chaque côté
-    const marge = selectDecoupe === true ? 4 : 1
-    console.log('MARGES : ', marge)
-
-    const matiere = datasMatieres.find((m) => m.Id_matiere === parseInt(id_matiere))
-    if (!matiere) return 'Matière introuvable.'
-
     const laize = matiere.laizes
     const prixMcarre = matiere.prix_mcarre
     const espacePoseCM = espacePose / 10
     const largeurCM = parseFloat(largeur)
     const longueurCM = parseFloat(longueur)
 
-    const format_utile = laize - 2 * marge
     console.log(`Laize utile : ${format_utile} cm`)
-    const nbParLaize = Math.floor(format_utile / (largeurCM + espacePoseCM))
+    const largeurAvecPose = largeurCM + espacePoseCM
+    let nbParLaize = Math.floor(format_utile / largeurAvecPose)
+    if (nbParLaize < 1) nbParLaize = 1 //comme ça même avec un espace de pose qui ferait dépasser, ça marche quand même
+
     console.log(`Calcul nbParLaize : ${format_utile} / (${largeurCM} + ${espacePoseCM}) = ${nbParLaize}`)
     const nbBandes = Math.ceil(quantite / nbParLaize)
     console.log(`Calcul nbBandes : ${quantite} / ${nbParLaize} = ${nbBandes}`)
-
-    if (nbParLaize === 0) {
-        console.log('Les dimensions sont trop grandes pour entrer dans la laize.')
-        return null
-    }
 
     // Surface d’une seule pièce avec espace (utile)
     const surfacePiece = (largeurCM * longueurCM) / 10000
@@ -401,19 +495,7 @@ function calculFrais(
     console.log(`Calcul cout matiere : ${prixDegressif} * ${surfaceTotale} * ${prixMcarre}`)
     const coutMatiere = prixDegressif * surfaceTotale * prixMcarre
 
-    const coutTotal = (fraisLancement + coutMatiere + prixDecoupe + prix_lamination + prix_designations).toFixed(2)
-
-    console.log(
-        `${fraisLancement} + ${coutMatiere.toFixed(2)} + ${prixDecoupe.toFixed(2)} + ${prix_lamination.toFixed(2)} + ${prix_designations}`
-    )
-    console.log('nb bandes : ', nbBandes)
-    console.log('check Découpe : ', selectDecoupe)
-    console.log(`Coef dégressif : ${prixDegressif}`)
-    console.log(`Prix mcarré : ${prixMcarre}`)
-    console.log(`Coût matière : ${coutMatiere.toFixed(2)} €`)
-    console.log(`Prix découpe : ${prixDecoupe.toFixed(2)} €`)
-    console.log(`Coût total : ${coutTotal} €`)
-    return parseFloat(coutTotal)
+    return parseFloat((fraisLancement + coutMatiere + prixDecoupe + prix_lamination + prix_designations).toFixed(2))
 }
 
 function PopupValiderEnregistrement(
@@ -431,9 +513,26 @@ function PopupValiderEnregistrement(
     idClient
 ) {
     if (session !== null) {
+        if (idClient === -2) {
+            alert("Veuillez saisir un client correspondant à l'entreprise.")
+            return
+        }
         const decoupe = selectDecoupe === true ? 'Oui' : 'Non'
+        if (nom.trim() === '') {
+            nom = id
+            if (parseInt(idClient) === -1) {
+                nom = 'Simulation_' + id
+            }
+        } else {
+            //Si le nom n'est pas vide
+            if (parseInt(idClient) === -1) {
+                nom = 'Simulation_' + nom
+            }
+        }
+
         const params = new URLSearchParams({
-            nom: nom === '' ? id : nom,
+            id: id,
+            nom: nom,
             longueur: verification === 'normal' ? longueur : largeur,
             largeur: verification === 'normal' ? largeur : longueur,
             quantite,
@@ -475,38 +574,9 @@ function PopupValiderEnregistrement(
                     alert("Une erreur s'est produite, veuillez réessayer.")
                     console.log(e)
                 })
-        } else if (action === 'copy') {
-            // ********************** Copy d'un devis
-            fetch('../app/app.php?action=copy_devis_mat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: params.toString(),
-            })
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.status === 'success') {
-                        const newIdDevis = parseInt(data.idDevis)
-                        const demandeVoirDevisModif = confirm('Votre devis a été copié. Voulez-vous le visualiser ?')
-                        if (demandeVoirDevisModif) {
-                            const url = `../app/app.php?action=devis_visualisation&id=${encodeURIComponent(newIdDevis)}`
-                            window.open(url, '_blank')
-                        } else {
-                            window.location.href = '../app/app.php?action=calcul_impression'
-                        }
-                    } else {
-                        alert(data.message)
-                    }
-                })
-                .catch((e) => {
-                    alert("Une erreur s'est produite, veuillez réessayer.")
-                    console.log(e)
-                })
         } else {
             // ****************** Cas d'ajout normal
             const confirmation = confirm('Voulez-vous enregistrer ce devis ?')
-            if (parseInt(idClient) === -1) {
-                id = 'Simulation_' + id
-            }
             if (confirmation) {
                 fetch('../app/app.php?action=add_matiere_data', {
                     method: 'POST',
@@ -552,6 +622,7 @@ function remplirCalculDevis() {
     quantite.value = datasDevisMat.quantite
     selectLamination.value = datasDevisMat.Id_lamination
     selectMatiere.value = datasDevisMat.Id_matiere
+    matiereChoices.setChoiceByValue(datasDevisMat.Id_matiere)
     selectMatiere.selected = selectMatiere.value
     espacePose.value = datasDevisMat.espace_pose
     if (datasDevisMat.decoupe === 'Oui') {
@@ -569,8 +640,11 @@ function remplirCalculDevis() {
         btnValidation.innerHTML = 'Modifier le devis'
     }
 
+    coutTotal = datasDevisMat.prix
     spanCoutTotal.innerHTML = `${datasDevisMat.prix}€`
-    resultats[1] = datasDevisMat.prix
+    resultats[1] = coutTotal
     inputNom.disabled = false
+    pourcentageInput.disabled = false
+    inputNom.dispatchEvent(new Event('change'))
     btnValidation.disabled = false
 }

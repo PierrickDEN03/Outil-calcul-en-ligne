@@ -13,6 +13,28 @@ let inputPrixPliage = document.querySelector('.prix_pliage')
 let inputFraisPliage = document.querySelector('.frais_pliage')
 const btnModifPliage = document.querySelector('.submit_pliage')
 const btnFrais = document.querySelector('.submit_frais')
+const divPagination = document.querySelector('.pagination')
+//**** Recherche
+const inputRecherche = document.querySelector('.searchInput')
+const btnRecherche = document.querySelector('.searchBtn')
+const btnSupprRecherche = document.querySelector('.delSearch')
+const selectTrie = document.querySelector('.select_trie')
+
+//Au changement de condition de trie, on appelle la fonction
+selectTrie.addEventListener('change', () => {
+    const critere = selectTrie.value
+    const datasTrie = trieDatas(critere, datasImpressions)
+    addTabMatiere(datasTrie, tabImpression)
+    createPagination(datasTrie, tabImpression, divPagination)
+})
+
+//Listener pour recherche
+btnRecherche.addEventListener('click', () => recherche(inputRecherche.value.toLowerCase()))
+btnSupprRecherche.addEventListener('click', () => {
+    inputRecherche.value = ''
+    addTabMatiere(datasImpressions, tabImpression)
+    createPagination(datasImpressions, tabImpression, divPagination)
+})
 
 //EventListeners
 btnAddImpr.addEventListener('click', addImpression)
@@ -20,7 +42,7 @@ btnAddPalier.addEventListener('click', addDegImpr)
 //Modification frais fixe
 btnFrais.addEventListener('click', (e) => {
     e.preventDefault()
-    if (parseFloat(inputFraisFixe.value) <= 0 || isNaN(parseFloat(inputFraisFixe.value))) {
+    if (parseFloat(inputFraisFixe.value) < 0 || isNaN(parseFloat(inputFraisFixe.value))) {
         alert('Veuillez saisir un frais fixe correct.')
         return
     }
@@ -33,7 +55,7 @@ btnFrais.addEventListener('click', (e) => {
 //Modification infos pliage
 btnModifPliage.addEventListener('click', (e) => {
     e.preventDefault()
-    if (parseFloat(inputFraisPliage.value) <= 0 || isNaN(parseFloat(inputFraisPliage.value))) {
+    if (parseFloat(inputFraisPliage.value) < 0 || isNaN(parseFloat(inputFraisPliage.value))) {
         alert('Veuillez saisir un frais de lancement correct.')
         return
     }
@@ -64,8 +86,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
             datasImpressions.sort((a, b) => a.nom_papier.localeCompare(b.nom_papier))
             datasDegressif.sort((a, b) => a.min - b.min)
-
+            console.log('Chargement page...')
+            //Création de la pagination et du tableau des impressions
             addTabMatiere(datasImpressions, tabImpression)
+            createPagination(datasImpressions, tabImpression, divPagination)
+
             addTabDegressif(datasDegressif, tabDegressif)
 
             //Assignation des valeurs des inputs frais et pliage
@@ -76,8 +101,12 @@ window.addEventListener('DOMContentLoaded', () => {
         .catch((error) => console.error('Erreur lors du chargement des données :', error))
 })
 
-function addTabMatiere(datasImpressions, tabImpression) {
-    datasImpressions.forEach((impression) => {
+function addTabMatiere(datasImpressions, tabImpression, start = 0, limit = 20) {
+    tabImpression.innerHTML = ''
+    //20 ou moins impressions affichées
+    const paginatedData = datasImpressions.slice(start, start + limit)
+    console.log(paginatedData)
+    paginatedData.forEach((impression) => {
         const tr = document.createElement('tr')
 
         const tdId = document.createElement('td')
@@ -331,4 +360,77 @@ function genererCode(nom, grammage) {
     })
     code += grammage.toString()
     return code
+}
+
+function trieDatas(trie, datasImpressions) {
+    let datasTries = [...datasImpressions] // copie des données
+
+    datasTries.sort((a, b) => {
+        switch (trie) {
+            case 'nom':
+                return a.nom_papier.localeCompare(b.nom_papier)
+
+            case 'grammage':
+                return a.grammage - b.grammage
+            case 'code':
+                return a.code_matiere.localeCompare(b.code_matiere)
+            case 'recto':
+                return a.prix_recto - b.prix_recto
+            case 'verso':
+                return a.prix_recto_verso - b.prix_recto_verso
+            default:
+                return 0 // pas de tri
+        }
+    })
+
+    return datasTries
+}
+
+function recherche(texte) {
+    if (texte === '') {
+        alert('Veuillez saisir un ou plusieurs termes de recherche')
+        return
+    }
+    console.log('recherche avec le terme :', texte)
+    const mots = texte.toLowerCase().split(' ')
+    const datasFiltre = datasImpressions.filter((item) => {
+        // On cherche l'adresse principale de l'entreprise
+        const champ = normalizeString(`
+            ${item.nom_entreprise}
+            ${item.grammage}
+            ${item.code_matiere}
+        `)
+        return mots.some((mot) => champ.includes(mot))
+    })
+    if (datasFiltre.length === 0) {
+        alert(`Aucun résultat trouvé avec la recherche "${texte}"`)
+    } else {
+        addTabMatiere(datasFiltre, tabImpression)
+        createPagination(datasFiltre, tabImpression, divPagination)
+        alert(`${datasFiltre.length} résultat(s) trouvé(s) avec la recherche "${texte}"`)
+    }
+}
+
+function normalizeString(str) {
+    return str
+        .normalize('NFD') // décompose les lettres accentuées
+        .replace(/[\u0300-\u036f]/g, '') // supprime les accents
+        .replace(/[^a-z0-9\s]/gi, '') // supprime les caractères spéciaux (garde lettres, chiffres, espaces)
+        .toLowerCase()
+        .trim()
+}
+
+function createPagination(datas, tabImpression, divPagination, limit = 20) {
+    divPagination.innerHTML = ''
+    const totalPages = Math.ceil(datas.length / limit)
+
+    for (let i = 0; i < totalPages; i++) {
+        const btn = document.createElement('button')
+        btn.textContent = `Page ${i + 1}`
+        btn.classList.add('pagination-btn')
+        btn.addEventListener('click', () => {
+            addTabMatiere(datas, tabImpression, i * limit, limit)
+        })
+        divPagination.appendChild(btn)
+    }
 }

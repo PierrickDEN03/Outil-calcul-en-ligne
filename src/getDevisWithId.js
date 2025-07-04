@@ -13,7 +13,7 @@ export const devisLoaded = new Promise((resolve, reject) => {
     fetch(`../api/devis_visualisation.php?id=${idDevis}`)
         .then((response) => response.json())
         .then((datasFetch) => {
-            datasDevis = datasFetch.infos[0]
+            datasDevis = datasFetch.infos
             resolve(datasDevis)
         })
         .catch((error) => {

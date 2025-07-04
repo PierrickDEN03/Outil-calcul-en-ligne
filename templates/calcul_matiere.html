@@ -42,14 +42,6 @@
                             <option value="-1">------</option>
                         </select>
                     </div>
-                    <div>
-                        <div class="form-row">
-                            <label for="designationBtn">Complément(s) : </label>
-                            <button name="designationBtn" class="designationBtn">Ajouter +</button>
-                        </div>
-                        <!-- Désignations gérés via JS -->
-                        <div class="designation-row"></div>
-                    </div>
                     <div class="form-row">
                         <label for="select-matiere">Choisir une matière</label>
                         <select class="select-matiere">
@@ -69,15 +61,26 @@
                         <input type="checkbox" class="check-decoupe" name="check-decoupe" value="false" />
                     </div>
                     <div class="form-row">
-                        <label for="frais_fixe">Frais de lancement : </label>
+                        <label for="frais_fixe">Frais fixe : </label>
                         <span class="fraix_fixe"></span>
+                    </div>
+                    <div>
+                        <div class="form-row">
+                            <label for="designationBtn">Complément(s) : </label>
+                            <button name="designationBtn" class="designationBtn">Ajouter +</button>
+                        </div>
+                        <!-- Désignations gérés via JS -->
+                        <div class="designation-row"></div>
                     </div>
                     <div class="form-row">
                         <input type="button" class="button-calcul-matieres" value="Faire le calcul" />
                     </div>
-                    <div class="form-row">
-                        <label for="total_cout">Cout total (Frais fixe inclus): </label>
-                        <span class="total_cout_matiere"></span>
+                    <div class="form-row" style="justify-content: space-between">
+                        <div><label for="total_cout">Cout total (Frais fixe inclus): </label> <span class="total_cout_matiere"></span></div>
+                        <div>
+                            <label for="pourcentage">Cout supplémentaire (en %) : </label> <span class="pourcentage"></span>
+                            <input type="number" min="0" step="0.1" class="pourcentageInput" value="0" />
+                        </div>
                     </div>
                     <div class="form-row nom-devis-row">
                         <label for="nom_devis">Nom du devis (optionnel)</label>
@@ -89,6 +92,9 @@
                             <label for="selectEntreprise">Entreprise (optionnel)</label>
                             <select name="selectEntreprise" class="selectEntreprise"></select>
                             <button onclick="window.open('../app/app.php?action=voir_entreprise', '_blank')">+</button>
+                            <button class="btnRefresh">
+                                <img src="../img/refresh.png" alt="Rafraichir" style="width: 15px; height: 15px; vertical-align: middle" />
+                            </button>
                         </div>
                         <div class="form-row hiddenClient">
                             <label for="selectClient">Client</label>

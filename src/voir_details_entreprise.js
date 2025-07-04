@@ -6,6 +6,50 @@ let datasDevis = []
 let datasPaiements = []
 let datasAdresses = []
 let id
+export let dontAsk = false
+let manualClickContact = false
+let manualClickAdresse = false
+let manualClickInfosGenerales = false
+let programmedClickInfosGenerales = false
+
+export function createAlertInfos(message) {
+    // Vérifie si l'utilisateur ne veut plus voir l'alerte
+    if (dontAsk) return
+
+    Swal.fire({
+        title: 'Informations',
+        text: message,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Ne plus afficher',
+    }).then((result) => {
+        if (result.isConfirmed) {
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            dontAsk = true
+            console.log('Ne plus demander')
+        }
+    })
+}
+
+export function createAlertError(message) {
+    // Vérifie si l'utilisateur ne veut plus voir l'alerte
+    if (dontAsk) return
+    Swal.fire({
+        title: 'Erreur',
+        text: message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Ne plus afficher',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            console.log('OK cliqué')
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            dontAsk = true
+            console.log('Ne plus demander')
+        }
+    })
+}
 
 //RegExp simple pour mail (*@*) et téléphone
 const emailRegex = /.+@.+/
@@ -24,6 +68,7 @@ const selectTrie = document.querySelector('.select_trie')
 selectTrie.addEventListener('change', () => {
     const critere = selectTrie.value
     const datasTrie = trieDatas(critere, datasDevis)
+    createPagination(datasTrie, tabDatas, divPagination)
     addTabDatas(datasTrie, datasClients, tabDatas)
 })
 
@@ -43,14 +88,145 @@ const divAdressesSecondaires = document.querySelector('.adresses_secondaires')
 const divContacts = document.querySelector('.contacts_secondaires')
 
 const hName = document.querySelector('.nameFiche')
-// Boutons de modification
-const btnModifNom = document.querySelector('.modifier-nomE')
-const btnModifPaiement = document.querySelector('.modifier-paiementE')
-const btnModifierMail = document.querySelector('.modifier-mail')
-const btnModifierTelephone = document.querySelector('.modifier-telephone')
-const btnModifierSiret = document.querySelector('.modifier-siret')
-const btnModifierAdresse = document.querySelector('.modifAdresseP')
-const btnModifierClientP = document.querySelector('.modifClientP')
+// Bouton de modification pour route les infos générales (contact et adresse principale compris)
+const btnModifInfos = document.querySelector('.modifInfosG')
+//Listener pour le bouton principal
+btnModifInfos.addEventListener('mousedown', () => {
+    manualClickInfosGenerales = true
+    programmedClickInfosGenerales = false
+})
+btnModifInfos.addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter') {
+        manualClickInfosGenerales = true
+        programmedClickInfosGenerales = false
+    }
+})
+btnModifInfos.addEventListener('click', async () => {
+    console.log('click')
+    manualClickInfosGenerales = true
+    // ******************* Infos Première section
+    const nomVal = nomEntreprise?.value.trim()
+    const mailVal = mailInput?.value.trim()
+    const telVal = telInput?.value.replace(/\s/g, '')
+    const siretVal = siretInput?.value.replace(/\s/g, '')
+    const paiement = document.getElementById('paiementE')
+
+    if (nomVal && nomVal !== '') {
+        if ((telVal && !telRegex.test(telVal)) || (siretVal && !siretRegex.test(siretVal)) || (mailVal && !emailRegex.test(mailVal))) {
+            if (telVal !== '' && !telRegex.test(telVal)) {
+                alert('Le numéro de téléphone doit contenir exactement 10 chiffres.')
+                return
+            }
+            if (siretVal !== '' && !siretRegex.test(siretVal)) {
+                alert('Le numéro de SIRET doit contenir exactement 14 chiffres.')
+                return
+            }
+            if (mailVal !== '' && !emailRegex.test(mailVal)) {
+                alert('Veuillez entrer une adresse e-mail valide.')
+                return
+            }
+            return
+        }
+    } else {
+        alert('Veuillez renseigner tous les champs concernant les informations générales.')
+        console.log(nomVal, mailVal, telVal, siretVal, paiement?.value)
+        return
+    }
+
+    // *********** Infos Adresse principale
+    const rueVal = rueInput?.value.trim()
+    const cpVal = cpInput?.value.trim()
+    const villeVal = villeInput?.value.trim()
+    const idAdresseVal = datasAdressesPrincipales.Id_adresse
+
+    if (cpVal) {
+        if (cpVal !== '' && !cpRegex.test(cpVal)) {
+            alert('Le code postal doit comporter exactement 5 chiffres.')
+            return
+        }
+    }
+
+    // *********** Infos Contact principal
+    const nomClientVal = nomClientPInput?.value.trim()
+    const mailClientVal = mailClientPInput?.value.trim()
+    const telClientVal = telClientPInput?.value.trim().replace(/\s/g, '')
+    const fixeClientVal = fixeClientPInput?.value.trim().replace(/\s/g, '')
+    const idClientAdresse = selectAdresseClientP?.value
+    const idClientVal = datasClients[0].Id_client
+
+    if (nomClientVal && nomClientVal !== '') {
+        if (
+            (mailClientVal !== '' && !emailRegex.test(mailClientVal)) ||
+            (telClientVal !== '' && !telRegex.test(telClientVal)) ||
+            (fixeClientVal !== '' && !telRegex.test(fixeClientVal))
+        ) {
+            if (!emailRegex.test(mailVal)) {
+                alert('Client : Veuillez entrer une adresse e-mail valide.')
+                return
+            }
+            if (!telRegex.test(telVal)) {
+                alert('Le numéro de téléphone portable doit comporter exactement 10 chiffres.')
+                return
+            }
+            if (!telRegex.test(fixeClientVal)) {
+                alert('Le numéro de téléphone fixe doit comporter exactement 10 chiffres.')
+                return
+            }
+            return
+        }
+    } else {
+        alert('Veuillez renseigner le nom-prénom du contact principal.')
+        return
+    }
+
+    const params = new URLSearchParams({
+        id: id,
+        nomEntreprise: nomVal,
+        mailEntreprise: mailVal,
+        telEntreprise: telVal,
+        siret: siretVal,
+        paiement: paiement.value,
+        rue: rueVal,
+        cp: cpVal,
+        ville: villeVal,
+        idAdresse: idAdresseVal,
+        nomClient: nomClientVal,
+        mailClient: mailClientVal,
+        telClient: telClientVal,
+        fixeClient: fixeClientVal,
+        idClientAdresse: idClientAdresse,
+        idClient: idClientVal,
+    })
+
+    for (const [key, value] of params.entries()) {
+        console.log(`${key} = ${value}`)
+    }
+
+    try {
+        const response = await fetch('../app/app.php?action=modif_infos_generales', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: params.toString(),
+        })
+
+        const data = await response.json()
+        console.log(data)
+
+        if (data.status === 'success') {
+            if (manualClickInfosGenerales && programmedClickInfosGenerales === false) {
+                createAlertInfos('Informations générales modifiées avec succès !')
+            }
+            await refreshApi()
+            addOptionAdresseClientP()
+        } else {
+            createAlertError(data.message)
+        }
+    } catch (error) {
+        createAlertError(error)
+    }
+})
 
 //Boutons ajout et popUp
 const btnAddContact = document.querySelector('.add_contact')
@@ -59,10 +235,15 @@ const PopUpContact = document.querySelector('.popupClient')
 const PopUpAdresse = document.querySelector('.popupAdresse')
 btnAddContact.addEventListener('click', () => {
     PopUpContact.style.display = 'flex'
+    refreshApi()
 })
 btnAddAdresse.addEventListener('click', () => {
     PopUpAdresse.style.display = 'flex'
+    refreshApi()
 })
+
+//Div Pagination
+const divPagination = document.querySelector('.pagination')
 
 //Boutons pour cacher
 const btnCacheAdresse = document.querySelector('.cache_adresse')
@@ -117,6 +298,125 @@ document.addEventListener('DOMContentLoaded', () => {
         applyPhoneMask(fixeClientPInput)
     }
 })
+export async function refreshApi() {
+    try {
+        console.clear()
+        const response = await fetch(`../api/details_entreprise.php?id=${id}`)
+        const datasFetch = await response.json()
+
+        datasClients = datasFetch.clients
+        datasEntreprises = datasFetch.entreprise[0]
+        datasAdressesPrincipales = datasFetch.adressePrincipale[0]
+        datasAdressesSecondaires = datasFetch.adressesSecondaires
+        datasDevis = datasFetch.devis
+        datasAdresses = [...datasFetch.adressePrincipale, ...datasFetch.adressesSecondaires]
+        datasPaiements = datasFetch.paiements
+        console.log('clients : ', datasClients)
+        console.log('entreprise : ', datasEntreprises)
+        console.log('adresse p : ', datasAdressesPrincipales)
+        console.log('adresse sec : ', datasAdressesSecondaires)
+        console.log('devis : ', datasDevis)
+    } catch (error) {
+        console.error('Erreur lors du chargement des données :', error)
+    }
+}
+
+export async function fetchAdresses() {
+    // Pour l'adresse si elle existe
+    if (datasAdressesPrincipales) {
+        rueInput.value = datasAdressesPrincipales.rue || ''
+        villeInput.value = datasAdressesPrincipales.ville || ''
+
+        // Pour le code postal : assigner la valeur puis déclencher l'événement input pour formater
+        cpInput.value = datasAdressesPrincipales.code_postal || ''
+        cpInput.dispatchEvent(new Event('input'))
+    }
+    generateAdressesSecondairesUI(datasAdressesSecondaires)
+}
+
+function addOptionAdresseClientP() {
+    selectAdresseClientP.innerHTML = ''
+    datasAdresses.forEach((item) => {
+        let label = ''
+        const rue = item.rue && item.rue.trim() !== '' ? item.rue.trim() : ''
+        const codePostal = item.code_postal && item.code_postal.trim() !== '' ? item.code_postal.trim() : ''
+        const ville = item.ville && item.ville.trim() !== '' ? item.ville.trim() : ''
+        let suffixe = ''
+        if (codePostal || ville) {
+            suffixe = `${codePostal} ${ville}`.trim()
+        }
+        if (rue && suffixe) {
+            label = `${rue}, ${suffixe}`
+        } else if (rue) {
+            label = rue
+        } else if (suffixe) {
+            label = suffixe
+        } else {
+            label = '(Adresse vide)'
+        }
+        const option = document.createElement('option')
+        option.textContent = label
+        option.value = item.Id_adresse
+        selectAdresseClientP.appendChild(option)
+    })
+    selectAdresseClientP.value = datasClients.find((client) => parseInt(client.priorite) === 1)?.adresse_Id
+}
+
+function fetchInfosGenerales() {
+    //Attribution du contenu aux sélecteurs concernant les infos générales
+    hName.innerHTML += datasEntreprises.nom_entreprise
+    nomEntreprise.value = datasEntreprises.nom_entreprise
+    mailInput.value = datasEntreprises.mail
+    // Pour le téléphone : assigner la valeur puis déclencher l'événement input pour formater
+    telInput.value = datasEntreprises.telephone
+    telInput.dispatchEvent(new Event('input'))
+
+    // Pour le SIRET : assigner la valeur puis déclencher l'événement input pour formater
+    siretInput.value = datasEntreprises.siret
+    siretInput.dispatchEvent(new Event('input'))
+    //Rajout dynamique dans select des modalités de paiement
+    const selectPaiement = document.getElementById('paiementE')
+    datasPaiements.forEach((item) => {
+        const option = document.createElement('option')
+        option.value = item.Id_paiement
+        option.innerHTML = item.label_paiement
+        selectPaiement.appendChild(option)
+    })
+    selectPaiement.value = datasEntreprises.Id_paiement
+}
+
+export async function fetchContacts() {
+    //Récupération du client principal
+    const clientPrincipal = datasClients.find((client) => {
+        return client.priorite === 1
+    })
+    //Attribution du contenu aux sélecteurs concernant le contact principal
+    nomClientPInput.value = clientPrincipal.nom_prenom
+    mailClientPInput.value = clientPrincipal.mail
+    telClientPInput.value = clientPrincipal.telephone
+    fixeClientPInput.value = clientPrincipal.fixe
+    // Pour le Tel du client : assigner la valeur puis déclencher l'événement input pour formater
+    telClientPInput.dispatchEvent(new Event('input'))
+    //Adresse pour le client principal
+    addOptionAdresseClientP()
+
+    // Pour le Fixe du client : assigner la valeur puis déclencher l'événement input pour formater
+    fixeClientPInput.dispatchEvent(new Event('input'))
+    generateAdressesSecondairesUI(datasAdressesSecondaires)
+    generateContactsUI(datasClients)
+}
+
+async function fetchDevis() {
+    addTabDatas(datasDevis, datasClients, tabDatas)
+}
+async function fetchDonnees() {
+    console.log('fetch toute données')
+    await refreshApi()
+    fetchInfosGenerales()
+    await fetchAdresses()
+    fetchContacts()
+    fetchDevis()
+}
 
 window.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search)
@@ -126,87 +426,7 @@ window.addEventListener('DOMContentLoaded', () => {
         console.error('Aucun identifiant fourni')
         return
     }
-    //Récupération des éléments des tables clients et entreprises
-    fetch(`../api/details_entreprise.php?id=${id}`)
-        .then((response) => response.json())
-        .then((datasFetch) => {
-            datasClients = datasFetch.clients
-            datasEntreprises = datasFetch.entreprise[0]
-            datasAdressesPrincipales = datasFetch.adressePrincipale[0]
-            datasAdressesSecondaires = datasFetch.adressesSecondaires
-            datasDevis = datasFetch.devis
-            datasAdresses = [...datasFetch.adressePrincipale, ...datasFetch.adressesSecondaires]
-            datasPaiements = datasFetch.paiements
-            /*console.log('clients : ', datasClients)
-            console.log('entreprise : ', datasEntreprises)
-            console.log('adresse p : ', datasAdressesPrincipales)
-            console.log('adresse sec : ', datasAdressesSecondaires)
-            console.log('datasDevis : ', datasDevis)
-            console.log('datasP : ', datasPaiements)*/
-
-            //Rajout dynamique dans select des modalités de paiement
-            const selectPaiement = document.getElementById('paiementE')
-            datasPaiements.forEach((item) => {
-                const option = document.createElement('option')
-                option.value = item.Id_paiement
-                option.innerHTML = item.label_paiement
-                selectPaiement.appendChild(option)
-            })
-            selectPaiement.value = datasEntreprises.Id_paiement
-
-            //Et aussi pour les adresses pour le client principal
-            datasAdresses.forEach((item) => {
-                const option = document.createElement('option')
-                option.innerHTML = `${item.rue}, ${item.code_postal} ${item.ville}`
-                option.value = item.Id_adresse
-                selectAdresseClientP.appendChild(option)
-            })
-            selectAdresseClientP.value = datasClients.find((client) => parseInt(client.priorite) === 1)?.adresse_Id
-
-            //Récupération du client principal
-            const clientPrincipal = datasClients.find((client) => {
-                return client.priorite === 1
-            })
-
-            //Attribution du contenu aux sélecteurs
-            hName.innerHTML += datasEntreprises.nom_entreprise
-            nomEntreprise.value = datasEntreprises.nom_entreprise
-            mailInput.value = datasEntreprises.mail
-            nomClientPInput.value = clientPrincipal.nom_prenom
-            mailClientPInput.value = clientPrincipal.mail
-            telClientPInput.value = clientPrincipal.telephone
-            fixeClientPInput.value = clientPrincipal.fixe
-
-            // Pour le téléphone : assigner la valeur puis déclencher l'événement input pour formater
-            telInput.value = datasEntreprises.telephone
-            telInput.dispatchEvent(new Event('input'))
-
-            // Pour le SIRET : assigner la valeur puis déclencher l'événement input pour formater
-            siretInput.value = datasEntreprises.siret
-            siretInput.dispatchEvent(new Event('input'))
-
-            // Pour l'adresse si elle existe
-            if (datasAdressesPrincipales) {
-                rueInput.value = datasAdressesPrincipales.rue || ''
-                villeInput.value = datasAdressesPrincipales.ville || ''
-
-                // Pour le code postal : assigner la valeur puis déclencher l'événement input pour formater
-                cpInput.value = datasAdressesPrincipales.code_postal || ''
-                cpInput.dispatchEvent(new Event('input'))
-            }
-
-            // Pour le Tel du client : assigner la valeur puis déclencher l'événement input pour formater
-            telClientPInput.dispatchEvent(new Event('input'))
-
-            // Pour le Fixe du client : assigner la valeur puis déclencher l'événement input pour formater
-            fixeClientPInput.dispatchEvent(new Event('input'))
-
-            //Appels de fonction
-            generateAdressesSecondairesUI(datasAdressesSecondaires)
-            generateContactsUI(datasClients)
-            addTabDatas(datasDevis, datasClients, tabDatas)
-        })
-        .catch((error) => console.error('Erreur lors du chargement des données :', error))
+    fetchDonnees()
 })
 
 // Fonction pour appliquer un masque de téléphone (XX XX XX XX XX)
@@ -269,111 +489,11 @@ function applyPostalCodeMask(input) {
     })
 }
 
-/* ========================================================= ELEMENTS PRINCIPAUX ============================================================ */
-
-//Listeners pour tous les boutons
-btnModifNom.addEventListener('click', () => {
-    const url = `../app/app.php?action=modif_nomE&id=${id}&nomE=${encodeURIComponent(nomEntreprise.value)}`
-    window.location.href = url
-})
-
-btnModifierMail.addEventListener('click', () => {
-    const url = `../app/app.php?action=modif_mail&id=${id}&mail=${encodeURIComponent(mailInput.value)}`
-    window.location.href = url
-})
-btnModifierTelephone.addEventListener('click', () => {
-    // Enlever les espaces du numéro de téléphone
-    const cleanTel = telInput.value.replace(/\s/g, '')
-
-    // Vérifier si le format est correct avec la regex déjà définie
-    if (!telRegex.test(cleanTel)) {
-        alert('Le numéro de téléphone doit contenir exactement 10 chiffres.')
-        return
-    }
-
-    const url = `../app/app.php?action=modif_telephone&id=${id}&tel=${encodeURIComponent(cleanTel)}`
-    window.location.href = url
-})
-btnModifierSiret.addEventListener('click', () => {
-    // Enlever les espaces du numéro de téléphone
-    const cleanSiret = siretInput.value.replace(/\s/g, '')
-
-    // Vérifier si le format est correct avec la regex déjà définie
-    if (!siretRegex.test(cleanSiret)) {
-        alert('Le numéro de SIRET doit contenir exactement 14 chiffres.')
-        return
-    }
-
-    const url = `../app/app.php?action=modif_siret&id=${id}&siret=${encodeURIComponent(cleanSiret)}`
-    window.location.href = url
-})
-
-btnModifPaiement.addEventListener('click', () => {
-    const url = `../app/app.php?action=modif_paiementE&id=${id}&mpaiement=${encodeURIComponent(document.getElementById('paiementE').value)}`
-    window.location.href = url
-})
-
-btnModifierAdresse.addEventListener('click', () => {
-    const idAdresse = datasAdressesPrincipales.Id_adresse
-    const rueVal = rueInput.value.trim()
-    const cpVal = cpInput.value.trim()
-    const villeVal = villeInput.value.trim()
-    // Vérifie que tous les champs sont remplis
-    if (rueVal === '' || cpVal === '' || villeVal === '') {
-        alert('Veuillez remplir tous les champs (rue, code postal, ville).')
-        return
-    }
-    // Vérifie que le code postal est valide
-    if (!cpRegex.test(cpVal)) {
-        alert('Le code postal doit comporter exactement 5 chiffres.')
-        return
-    }
-    const url = `../app/app.php?action=modif_adresseP&idA=${idAdresse}&rue=${encodeURIComponent(rueVal)}&cp=${encodeURIComponent(
-        cpVal
-    )}&ville=${encodeURIComponent(villeVal)}&id=${encodeURIComponent(id)}`
-    window.location.href = url
-})
-btnModifierClientP.addEventListener('click', () => {
-    const idVal = datasClients[0].Id_client
-    const nomVal = nomClientPInput.value.trim()
-    const mailVal = mailClientPInput.value.trim()
-    const telVal = telClientPInput.value.trim().replace(/\s/g, '')
-    const fixeVal = fixeClientPInput.value.trim().replace(/\s/g, '')
-    const idAdresse = selectAdresseClientP.value
-
-    // Vérifie que tous les champs sont remplis
-    if (nomVal === '' || mailVal === '' || telVal === '' || fixeVal === '') {
-        alert('Veuillez remplir tous les champs (nom, e-mail, téléphone, fixe).')
-        return
-    }
-
-    // Vérifie que l'e-mail est valide
-    if (!emailRegex.test(mailVal)) {
-        alert('Veuillez entrer une adresse e-mail valide.')
-        return
-    }
-
-    // Vérifie que les numéros de téléphone comportent 10 chiffres
-    if (!telRegex.test(telVal)) {
-        alert('Le numéro de téléphone portable doit comporter exactement 10 chiffres.')
-        return
-    }
-
-    if (!telRegex.test(fixeVal)) {
-        alert('Le numéro de téléphone fixe doit comporter exactement 10 chiffres.')
-        return
-    }
-
-    const url = `../app/app.php?action=modif_clientP&idC=${encodeURIComponent(idVal)}&nom=${encodeURIComponent(
-        nomVal
-    )}&mail=${encodeURIComponent(mailVal)}&tel=${encodeURIComponent(telVal)}&fixe=${encodeURIComponent(fixeVal)}&idA=${encodeURIComponent(
-        idAdresse
-    )}&id=${encodeURIComponent(id)}`
-    window.location.href = url
-})
-
 /* ====================================================== SECTION ADRESSES =====================================================*/
-function generateAdressesSecondairesUI(datasAdressesSecondaires) {
+let adresseActive = null // Suivi de l'adresse actif
+
+async function generateAdressesSecondairesUI(datasAdressesSecondaires) {
+    manualClickAdresse = false
     divAdressesSecondaires.innerHTML = '' // Réinitialiser le contenu
 
     const maxPriorite = Math.max(...datasAdressesSecondaires.map((a) => parseInt(a.priorite_adresse)))
@@ -436,12 +556,29 @@ function generateAdressesSecondairesUI(datasAdressesSecondaires) {
         prioriteInput.value = adresse.priorite_adresse
         prioriteInput.placeholder = 'Priorité'
         prioriteInput.className = 'input-priorite'
+        prioriteInput.addEventListener('keydown', function (e) {
+            const allowedKeys = ['ArrowUp', 'ArrowDown', 'Tab', 'Shift', 'Control']
+            if (!allowedKeys.includes(e.key)) {
+                e.preventDefault()
+            }
+        })
 
         // Bouton Modifier
         const btnModifier = document.createElement('button')
         btnModifier.textContent = 'Modifier'
         btnModifier.className = 'btn-modifier-adresse'
-        btnModifier.addEventListener('click', () => {
+
+        //Au mouseDown (click avec souris) et toucher Entrer, ça affiche la popup
+        btnModifier.addEventListener('mousedown', () => {
+            manualClickAdresse = true
+        })
+        btnModifier.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                manualClickAdresse = true
+            }
+        })
+
+        btnModifier.addEventListener('click', async (e) => {
             const rue = rueInput.value.trim()
             const cp = cpInput.value.trim()
             const ville = villeInput.value.trim()
@@ -458,16 +595,49 @@ function generateAdressesSecondairesUI(datasAdressesSecondaires) {
             }
 
             if (parseInt(priorite) > maxPriorite || parseInt(priorite) < 1) {
-                alert(`Veuiller renseigner un ordre valide entre 1 et ${maxPriorite}`)
+                alert(`Veuillez renseigner un ordre valide entre 1 et ${maxPriorite}`)
                 return
             }
 
-            const url = `../app/app.php?action=modif_adresseS&idA=${adresse.Id_adresse}&rue=${encodeURIComponent(
-                rue
-            )}&cp=${encodeURIComponent(cp)}&ville=${encodeURIComponent(ville)}&priorite=${encodeURIComponent(
-                priorite
-            )}&id=${encodeURIComponent(id)}`
-            window.location.href = url
+            const params = new URLSearchParams({
+                idA: adresse.Id_adresse,
+                rue: rue,
+                cp: cp,
+                ville: ville,
+                priorite: priorite,
+                id: id,
+            })
+
+            try {
+                const response = await fetch('../app/app.php?action=modif_adresseS', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params.toString(),
+                })
+
+                const data = await response.json()
+                console.log(data)
+
+                if (data.status === 'success') {
+                    // Code en cas de succès
+                    if (manualClickAdresse && e.isTrusted === true) {
+                        createAlertInfos('Informations des adresses secondaires modifiées avec succès !')
+                    }
+                    await refreshApi()
+                    programmedClickInfosGenerales = true
+                    await fetchAdresses()
+                    fetchContacts()
+                } else {
+                    // Code en cas d'erreur
+                    if (manualClickAdresse && e.isTrusted === true) {
+                        createAlertError(data.message)
+                    }
+                }
+            } catch (error) {
+                createAlertError(error)
+            }
         })
 
         // Bouton Supprimer
@@ -475,11 +645,37 @@ function generateAdressesSecondairesUI(datasAdressesSecondaires) {
         btnSupprimer.textContent = 'Supprimer'
         btnSupprimer.className = 'btn-supprimer-adresse'
         btnSupprimer.style.marginLeft = '10px'
-        btnSupprimer.addEventListener('click', () => {
+        btnSupprimer.addEventListener('click', async () => {
             const confirmDelete = confirm('Êtes-vous sûr de vouloir supprimer cette adresse secondaire ?')
-            if (confirmDelete) {
-                const url = `../app/app.php?action=suppr_adresseS&idA=${adresse.Id_adresse}&id=${encodeURIComponent(id)}`
-                window.location.href = url
+            if (!confirmDelete) return
+
+            const params = new URLSearchParams({
+                idA: adresse.Id_adresse,
+                id: id,
+            })
+
+            try {
+                const response = await fetch('../app/app.php?action=suppr_adresseS', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params.toString(),
+                })
+
+                const data = await response.json()
+                console.log(data)
+
+                if (data.status === 'success') {
+                    createAlertInfos('Nouvelle adresse créée avec succès !')
+                    await refreshApi()
+                    await fetchAdresses()
+                    fetchContacts()
+                } else {
+                    createAlertError(data.message)
+                }
+            } catch (error) {
+                createAlertError(error)
             }
         })
 
@@ -492,30 +688,48 @@ function generateAdressesSecondairesUI(datasAdressesSecondaires) {
         adresseDiv.appendChild(btnSupprimer)
 
         divAdressesSecondaires.appendChild(adresseDiv)
+        // Lorsqu'on interagit avec la div, elle devient le contact actif
+        adresseDiv.addEventListener('focusin', () => {
+            adresseActive = { div: adresseDiv, btn: btnModifier }
+        })
     })
+
+    /*// Écouteur global (ajouté une seule fois)
+    if (!document.outsideClickHandlerAdded) {
+        document.addEventListener('click', function (e) {
+            if (adresseActive && !adresseActive.div.contains(e.target)) {
+                console.log('Clic en dehors du contact actif')
+                manualClickAdresse = false
+                adresseActive.btn.click()
+                adresseActive = null
+            }
+        })
+        document.outsideClickHandlerAdded = true // Flag pour éviter les doublons
+    }*/
 }
 
 /* ====================================================== SECTION CONTACTS =================================================== */
-function generateContactsUI(datasClients) {
+let contactActif = null // Suivi du contact actif
+
+async function generateContactsUI(datasClients) {
+    manualClickContact = false
     divContacts.innerHTML = '' // Réinitialiser le contenu
 
     const maxPriorite = Math.max(...datasClients.map((c) => parseInt(c.priorite)))
-    const datasClientsSecondaires = datasClients.filter((client) => {
-        return client.priorite !== 1
-    })
-    datasClientsSecondaires.forEach((contact, index) => {
+    const datasClientsSecondaires = datasClients.filter((client) => client.priorite !== 1)
+
+    datasClientsSecondaires.forEach((contact) => {
         const contactDiv = document.createElement('div')
         contactDiv.className = 'contact'
         contactDiv.style.border = '1px solid #ccc'
         contactDiv.style.padding = '10px'
         contactDiv.style.marginBottom = '10px'
 
-        // Titre
         const titre = document.createElement('h4')
         titre.textContent = `Contact n°${contact.priorite}`
         contactDiv.appendChild(titre)
 
-        // Fonction utilitaire pour créer input + label
+        // Fonction utilitaire pour créer un champ avec label
         const createLabeledInput = (labelText, inputElement) => {
             const container = document.createElement('div')
             container.style.marginBottom = '8px'
@@ -527,46 +741,40 @@ function generateContactsUI(datasClients) {
 
             container.appendChild(label)
             container.appendChild(inputElement)
-
             return container
         }
 
-        // Nom et prénom
+        // Création des champs
         const nomInput = document.createElement('input')
         nomInput.type = 'text'
         nomInput.value = contact.nom_prenom
         nomInput.placeholder = 'Nom Prénom'
         nomInput.className = 'input-nom'
 
-        // Mail
         const mailInput = document.createElement('input')
         mailInput.type = 'email'
         mailInput.value = contact.mail
         mailInput.placeholder = 'Adresse e-mail'
         mailInput.className = 'input-mail'
 
-        // Fixe
         const fixeInput = document.createElement('input')
         fixeInput.type = 'tel'
         fixeInput.value = contact.fixe
         fixeInput.placeholder = 'Téléphone fixe'
         fixeInput.className = 'input-fixe'
         applyPhoneMask(fixeInput)
-        // Déclencher l'événement pour formater la valeur existante
         fixeInput.dispatchEvent(new Event('input'))
 
-        // Téléphone
         const telInput = document.createElement('input')
         telInput.type = 'tel'
         telInput.value = contact.telephone
         telInput.placeholder = 'Téléphone mobile'
         telInput.className = 'input-telephone'
         applyPhoneMask(telInput)
-        // Déclencher l'événement pour formater la valeur existante
         telInput.dispatchEvent(new Event('input'))
 
-        //Adresse
         const selectAdresse = document.createElement('select')
+        selectAdresse.innerHTML = ''
         datasAdresses.forEach((item) => {
             const option = document.createElement('option')
             option.innerHTML = `${item.rue}, ${item.code_postal} ${item.ville}`
@@ -575,30 +783,46 @@ function generateContactsUI(datasClients) {
         })
         selectAdresse.value = contact.adresse_Id
 
-        // Priorité
         const prioriteInput = document.createElement('input')
         prioriteInput.type = 'number'
         prioriteInput.min = 1
         prioriteInput.max = maxPriorite
         prioriteInput.value = contact.priorite
         prioriteInput.className = 'input-priorite'
+        //Empeche la saisie par clavier
+        prioriteInput.addEventListener('keydown', function (e) {
+            const allowedKeys = ['ArrowUp', 'ArrowDown', 'Tab', 'Shift', 'Control']
+            if (!allowedKeys.includes(e.key)) {
+                e.preventDefault()
+            }
+        })
 
         // Bouton Modifier
         const btnModifier = document.createElement('button')
         btnModifier.textContent = 'Modifier'
         btnModifier.className = 'btn-modifier-contact'
-        btnModifier.addEventListener('click', () => {
+        //Affiche la popup si appui sur Entrée ou au click souris
+        btnModifier.addEventListener('mousedown', () => {
+            manualClickContact = true
+        })
+        btnModifier.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                manualClickContact = true
+            }
+        })
+
+        btnModifier.addEventListener('click', async (e) => {
             const nom = nomInput.value.trim()
             const mail = mailInput.value.trim()
             const fixe = fixeInput.value.trim().replace(/\s/g, '')
             const telephone = telInput.value.trim().replace(/\s/g, '')
             const priorite = prioriteInput.value.trim()
-            // Vérifie que les numéros de téléphone comportent 10 chiffres
-            if (!telRegex.test(telephone)) {
+
+            if (telephone !== '' && !telRegex.test(telephone)) {
                 alert('Le numéro de téléphone portable doit comporter exactement 10 chiffres.')
                 return
             }
-            if (!telRegex.test(fixe)) {
+            if (fixe !== '' && !telRegex.test(fixe)) {
                 alert('Le numéro de téléphone fixe doit comporter exactement 10 chiffres.')
                 return
             }
@@ -606,18 +830,52 @@ function generateContactsUI(datasClients) {
                 alert('Veuillez saisir un mail valide.')
                 return
             }
-            if (!nom || !mail || !fixe || !telephone || !priorite) {
+            if (!nom && !priorite) {
                 alert('Tous les champs doivent être remplis.')
                 return
             }
 
-            const url = `../app/app.php?action=modif_clientS&idC=${contact.Id_client}&nom=${encodeURIComponent(
-                nom
-            )}&mail=${encodeURIComponent(mail)}&fixe=${encodeURIComponent(fixe)}&tel=${encodeURIComponent(
-                telephone
-            )}&adresseC=${encodeURIComponent(selectAdresse.value)}&priorite=${encodeURIComponent(priorite)}&id=${encodeURIComponent(id)}`
-            console.log('URL de modification :', url)
-            window.location.href = url
+            const params = new URLSearchParams({
+                idC: contact.Id_client,
+                nom: nom,
+                mail: mail,
+                fixe: fixe,
+                tel: telephone,
+                adresseC: selectAdresse.value,
+                priorite: priorite,
+                id: id,
+            })
+
+            try {
+                const response = await fetch('../app/app.php?action=modif_clientS', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params.toString(),
+                })
+
+                const data = await response.json()
+                console.log(data)
+
+                if (data.status === 'success') {
+                    // Code en cas de succès
+                    if (manualClickContact && e.isTrusted === true) {
+                        createAlertInfos('Informations des clients secondaires modifiées.')
+                    }
+                    await refreshApi()
+                    programmedClickInfosGenerales = true
+                    await fetchAdresses()
+                    fetchContacts()
+                } else {
+                    // Code en cas d'erreur
+                    if (manualClickContact && e.isTrusted === true) {
+                        createAlertError(data.message)
+                    }
+                }
+            } catch (error) {
+                createAlertError(error)
+            }
         })
 
         // Bouton Supprimer
@@ -625,12 +883,42 @@ function generateContactsUI(datasClients) {
         btnSupprimer.textContent = 'Supprimer'
         btnSupprimer.className = 'btn-supprimer-contact'
         btnSupprimer.style.marginLeft = '10px'
-        btnSupprimer.addEventListener('click', () => {
+        btnSupprimer.addEventListener('click', async () => {
             const confirmDelete = confirm('Êtes-vous sûr de vouloir supprimer ce contact ?')
-            if (confirmDelete) {
-                const url = `../app/app.php?action=suppr_clientS&idC=${contact.Id_client}&id=${encodeURIComponent(id)}`
-                console.log('URL de suppression :', url)
-                window.location.href = url
+            if (!confirmDelete) return
+
+            const params = new URLSearchParams({
+                idC: contact.Id_client,
+                id: id,
+            })
+
+            for (const [key, value] of params.entries()) {
+                console.log(`${key} = ${value}`)
+            }
+
+            try {
+                const response = await fetch('../app/app.php?action=suppr_clientS', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params.toString(),
+                })
+
+                const data = await response.json()
+                console.log(data)
+
+                if (data.status === 'success') {
+                    createAlertInfos('Contact supprimé avec succès.')
+                    await refreshApi()
+                    programmedClickInfosGenerales = true
+                    await fetchAdresses()
+                    fetchContacts()
+                } else {
+                    createAlertError(data.message)
+                }
+            } catch (error) {
+                createAlertError(error)
             }
         })
 
@@ -643,9 +931,27 @@ function generateContactsUI(datasClients) {
         contactDiv.appendChild(createLabeledInput('Priorité :', prioriteInput))
         contactDiv.appendChild(btnModifier)
         contactDiv.appendChild(btnSupprimer)
-
         divContacts.appendChild(contactDiv)
+
+        // Lorsqu'on interagit avec la div, elle devient le contact actif
+        contactDiv.addEventListener('focusin', () => {
+            contactActif = { div: contactDiv, btn: btnModifier }
+        })
     })
+
+    /*
+    // Écouteur global (ajouté une seule fois)
+    if (!document.outsideClickHandlerAdded) {
+        document.addEventListener('click', function (e) {
+            if (contactActif && !contactActif.div.contains(e.target)) {
+                console.log('Clic en dehors du contact actif')
+                manualClickContact = false
+                contactActif.btn.click()
+                contactActif = null
+            }
+        })
+        document.outsideClickHandlerAdded = true // Flag pour éviter les doublons
+    }*/
 }
 
 /* ======================================= FONCTION TABLEAU DE DEVIS ============================================*/
@@ -666,9 +972,11 @@ function formatValue(val, type, champ) {
 }
 
 // Fonction modifiée pour générer les lignes dynamiquement
-function addTabDatas(datas, datasClients, tabDatas) {
+function addTabDatas(datas, datasClients, tabDatas, start = 0, limit = 20) {
     tabDatas.innerHTML = ''
-    datas.forEach((data) => {
+    const paginatedData = datas.slice(start, start + 20)
+    console.log(paginatedData)
+    paginatedData.forEach((data) => {
         const tr = document.createElement('tr')
 
         // Cellule invisible pour Id_enregistrement
@@ -715,7 +1023,7 @@ function addTabDatas(datas, datasClients, tabDatas) {
         btnModif.textContent = 'Modification rapide'
         btnModif.style.display = 'none'
         btnModif.classList.add('btn-modif')
-        btnModif.addEventListener('click', () => {
+        btnModif.addEventListener('click', async () => {
             const newNom = inputNom.value.trim()
             if (newNom === '') {
                 alert('Le nom du devis ne peut pas être vide.')
@@ -732,22 +1040,77 @@ function addTabDatas(datas, datasClients, tabDatas) {
                 return
             }
 
-            const url = `../app/app.php?action=modif_data_detail&id=${encodeURIComponent(id)}&idDevis=${encodeURIComponent(
-                data.Id_enregistrement
-            )}&nom=${encodeURIComponent(newNom)}`
-            window.location.href = url
+            const params = new URLSearchParams({
+                id: id,
+                idDevis: data.Id_enregistrement,
+                nom: newNom,
+            })
+
+            for (const [key, value] of params.entries()) {
+                console.log(`${key} = ${value}`)
+            }
+
+            try {
+                const response = await fetch('../app/app.php?action=modif_nom_devis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params.toString(),
+                })
+
+                const result = await response.json()
+                console.log(result)
+
+                if (result.status === 'success') {
+                    createAlertInfos('Devis modifié avec succès !')
+                    await refreshApi()
+                    fetchDevis()
+                } else {
+                    createAlertError(result.message)
+                }
+            } catch (error) {
+                createAlertError(error)
+            }
         })
 
         const btnSuppr = document.createElement('button')
         btnSuppr.textContent = 'Supprimer'
         btnSuppr.classList.add('btn-suppr')
-        btnSuppr.addEventListener('click', () => {
+        btnSuppr.addEventListener('click', async () => {
             const confirmation = confirm('Êtes-vous sûr de vouloir supprimer cette ligne ?')
-            if (confirmation) {
-                const url = `../app/app.php?action=suppr_data_detail&id=${encodeURIComponent(id)}&idDevis=${encodeURIComponent(
-                    data.Id_enregistrement
-                )}`
-                window.location.href = url
+            if (!confirmation) return
+
+            const params = new URLSearchParams({
+                id: id,
+                idDevis: data.Id_enregistrement,
+            })
+
+            for (const [key, value] of params.entries()) {
+                console.log(`${key} = ${value}`)
+            }
+
+            try {
+                const response = await fetch('../app/app.php?action=suppr_data_devis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params.toString(),
+                })
+
+                const data = await response.json()
+                console.log(data)
+
+                if (data.status === 'success') {
+                    createAlertInfos('Devis supprimé avec succès !')
+                    await refreshApi()
+                    fetchDevis()
+                } else {
+                    createAlertError(data.message)
+                }
+            } catch (error) {
+                createAlertError(error)
             }
         })
 
@@ -784,11 +1147,38 @@ function addTabDatas(datas, datasClients, tabDatas) {
         imgPasteDevis.style.width = '20px'
         imgPasteDevis.style.height = '20px'
         btnMPasteDevis.appendChild(imgPasteDevis)
-        btnMPasteDevis.addEventListener('click', () => {
-            //En fonction du type de devis, on renvoie sur une page de calcul différent
-            const direction = data.type_enregistrement === 'Feuille' ? 'calcul_impression' : 'calcul_matiere'
-            const url = `../app/app.php?action=${direction}modif=copy&id=${encodeURIComponent(data.Id_enregistrement)}`
-            window.open(url, '_blank')
+        btnMPasteDevis.addEventListener('click', async () => {
+            const params = new URLSearchParams({
+                id: data.Id_enregistrement,
+                idE: id,
+            })
+
+            for (const [key, value] of params.entries()) {
+                console.log(`${key} = ${value}`)
+            }
+
+            try {
+                const response = await fetch('../app/app.php?action=copy_devis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params.toString(),
+                })
+
+                const result = await response.json()
+                console.log(result)
+
+                if (result.status === 'success') {
+                    createAlertInfos('Devis copié avec succès !')
+                    await refreshApi()
+                    fetchDevis()
+                } else {
+                    createAlertError(result.message)
+                }
+            } catch (error) {
+                createAlertError(error)
+            }
         })
 
         tdActions.appendChild(btnModif)
@@ -847,6 +1237,7 @@ function trieDatas(trie, datas) {
 btnRecherche.addEventListener('click', () => recherche(inputRecherche.value.toLowerCase()))
 btnSupprRecherche.addEventListener('click', () => {
     inputRecherche.value = ''
+    createPagination(datasDevis, tabDatas, divPagination)
     addTabDatas(datasDevis, datasClients, tabDatas)
 })
 
@@ -885,7 +1276,23 @@ function recherche(texte) {
     if (datasFiltre.length === 0) {
         alert(`Aucun résultat trouvé avec la recherche "${texte}"`)
     } else {
+        createPagination(datasFiltre, tabDatas, divPagination)
         addTabDatas(datasFiltre, datasClients, tabDatas)
         alert(`${datasFiltre.length} résultat(s) trouvé(s) avec la recherche "${texte}"`)
+    }
+}
+
+function createPagination(datas, tabDatas, divPagination, limit = 20) {
+    divPagination.innerHTML = ''
+    const totalPages = Math.ceil(datas.length / limit)
+    console.log('taille données devis : ', datas.length)
+    for (let i = 0; i < totalPages; i++) {
+        const btn = document.createElement('button')
+        btn.textContent = `Page ${i + 1}`
+        btn.classList.add('pagination-btn')
+        btn.addEventListener('click', () => {
+            addTabDatas(datas, datasClients, tabDatas, i * limit, limit)
+        })
+        divPagination.appendChild(btn)
     }
 }

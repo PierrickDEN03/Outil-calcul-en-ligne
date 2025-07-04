@@ -5,6 +5,10 @@
     padding: 0;
 }
 
+.pagination-btn:focus {
+    background-color: blue;
+}
+
 /* Corps de la page */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -259,7 +263,12 @@ div[style*='justify-content: space-between'] > div {
 .popup-content .form-group label {
     min-width: 200px;
     display: block;
+    width: auto;
     margin-bottom: 5px;
+}
+
+.popup-ajout-client .form-group label {
+    min-width: 300px;
 }
 
 .popup-content .form-group input {

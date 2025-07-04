@@ -20,6 +20,14 @@ class AccesClients {
         $this->pdo = $pdo;
     }
 
+    public function getClientWithIdClient($id) {
+        $query = $this->pdo->prepare('SELECT nom_prenom FROM clients WHERE Id_client=:id');
+        $query->bindParam(":id",$id);
+        $query->execute();
+        $result = $query->fetchAll(PDO::FETCH_ASSOC);
+        return $result;
+    }
+
     public function getClients() {
         $query = $this->pdo->prepare('SELECT * FROM clients WHERE Id_client!=-1');
         $query->execute();

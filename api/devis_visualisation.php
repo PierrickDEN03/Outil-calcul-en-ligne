@@ -8,7 +8,7 @@ if (!isset($_GET['id'])) {
     exit;
 }
 
-$id = intval($_GET['id']); // Sécurisation minimale
+$id = $_GET['id']; 
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $login, $password);

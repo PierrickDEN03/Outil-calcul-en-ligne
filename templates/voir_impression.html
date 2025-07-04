@@ -8,7 +8,7 @@
     </head>
     <body>
         <h1>Visualisation des Impressions</h1>
-        <p>
+        <div style="padding: 0 40%">
             <a href="../app/app.php?action=backoffice"
                 ><img
                     src="../img/back-button.png"
@@ -17,11 +17,30 @@
                 />
                 Retour au Backoffice</a
             >
-        </p>
+        </div>
         <div class="container">
-            <!-- Tableau principal des matières -->
             <section class="table-section">
                 <h2>Impressions disponibles</h2>
+                <!-- Barre de recherche -->
+
+                <div class="search-bar" style="margin-bottom: 16px">
+                    <input type="text" class="searchInput" placeholder="Rechercher..." />
+                    <button class="searchBtn">Rechercher</button>
+                    <button class="delSearch">Annuler la recherche</button>
+                </div>
+
+                <!-- Champ déroulant pour trier -->
+
+                <label for="select_trie">Trier en fonction</label>
+                <select name="select_trie" class="select_trie">
+                    <option value="null">--------</option>
+                    <option value="nom">Nom</option>
+                    <option value="grammage">Grammage</option>
+                    <option value="code">Code</option>
+                    <option value="recto">Prix Recto</option>
+                    <option value="verso">Prix Recto/Verso</option>
+                </select>
+                <!-- Tableau principal des matières -->
                 <table>
                     <thead>
                         <tr>
@@ -48,6 +67,10 @@
                         </tr>
                     </tfoot>
                 </table>
+                <div
+                    style="display: flex; justify-content: center; align-items: center; margin: 20px 0; gap: 20px"
+                    class="pagination"
+                ></div>
             </section>
 
             <div style="display: flex; justify-content: space-between; gap: 50px">
@@ -99,7 +122,6 @@
                 </table>
             </section>
         </div>
-
         <script type="module" src="../src/voir_impression.js"></script>
     </body>
 </html>

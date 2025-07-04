@@ -8,7 +8,7 @@
     </head>
     <body>
         <h1>Visualisation des Matières</h1>
-        <p>
+        <div style="padding: 0 40%">
             <a href="../app/app.php?action=backoffice"
                 ><img
                     src="../img/back-button.png"
@@ -17,11 +17,30 @@
                 />
                 Retour au Backoffice</a
             >
-        </p>
+        </div>
         <div class="container">
-            <!-- Tableau principal des matières -->
             <section class="table-section">
                 <h2>Matières disponibles</h2>
+                <!-- Barre de recherche -->
+
+                <div class="search-bar" style="margin-bottom: 16px">
+                    <input type="text" class="searchInput" placeholder="Rechercher..." />
+                    <button class="searchBtn">Rechercher</button>
+                    <button class="delSearch">Annuler la recherche</button>
+                </div>
+
+                <!-- Champ déroulant pour trier -->
+
+                <label for="select_trie">Trier en fonction</label>
+                <select name="select_trie" class="select_trie">
+                    <option value="null">--------</option>
+                    <option value="nom">Nom</option>
+                    <option value="type">Type Matière</option>
+                    <option value="code">Code</option>
+                    <option value="laize">Laizes</option>
+                    <option value="prix">Prix</option>
+                </select>
+                <!-- Tableau principal des matières -->
                 <table>
                     <thead>
                         <tr>
@@ -29,6 +48,7 @@
                             <th>Nom</th>
                             <th>Type Matière</th>
                             <th>Laize (en cm)</th>
+                            <th>Marges (en cm)</th>
                             <th>Prix m²</th>
                             <th>Code</th>
                             <th>Actions</th>
@@ -42,12 +62,17 @@
                             <td><input type="text" id="newNom" placeholder="Nom" /></td>
                             <td><input type="text" id="newType" placeholder="Type Matière" /></td>
                             <td><input type="number" id="newLaize" placeholder="Laize" step="1" min="0" /></td>
+                            <td><input type="number" id="newMarges" placeholder="Marges" step="0.1" min="0" /></td>
                             <td><input type="number" id="newMcarre" placeholder="Prix au m²" step="0.1" min="0" /></td>
                             <td><input type="text" id="newCode" placeholder="Code Matière (optionnel)" /></td>
                             <td><button class="btnAdd">Ajouter</button></td>
                         </tr>
                     </tfoot>
                 </table>
+                <div
+                    style="display: flex; justify-content: center; align-items: center; margin: 20px 0; gap: 20px"
+                    class="pagination"
+                ></div>
             </section>
 
             <div style="display: flex; justify-content: space-between; gap: 50px">
@@ -120,6 +145,6 @@
             </section>
         </div>
 
-        <script type="module" src="../src/voir_matiere.js"></script>
+        <script type="module" src="../src/voir_matieres.js"></script>
     </body>
 </html>
